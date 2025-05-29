@@ -8,13 +8,19 @@ import {
 } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { YoutubeTranscript } from "youtube-transcript";
-import * as z from 'zod';
+import * as z from "zod";
 import { extractYouTubeTranscript } from "./utils/youtubeTranscript";
 import { generateContentWithGemini } from "./utils/geminiClient";
 import { parseFlashcardsAndQuiz } from "./utils/flashcardParser";
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import { insertUser, getUser, updateUser, insertMessage, getMessages } from "./storage";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import {
+  insertUser,
+  getUser,
+  updateUser,
+  insertMessage,
+  getMessages,
+} from "./storage";
 import { generateWithGemini } from "./utils/geminiClient";
 import { getYouTubeTranscript } from "./utils/youtubeTranscript";
 import { parseFlashcardsAndQuiz } from "./utils/flashcardParser";
@@ -36,7 +42,7 @@ interface Video {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+  const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
   // Authentication routes
   app.post("/auth/signup", async (req, res) => {
@@ -46,12 +52,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!email || !password) {
         console.log("Missing email or password");
-        return res.status(400).json({ error: "Email and password are required" });
+        return res
+          .status(400)
+          .json({ error: "Email and password are required" });
       }
 
       if (password.length < 6) {
         console.log("Password too short");
-        return res.status(400).json({ error: "Password must be at least 6 characters long" });
+        return res
+          .status(400)
+          .json({ error: "Password must be at least 6 characters long" });
       }
 
       // Check if user already exists
@@ -68,7 +78,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser({
         email,
         name,
-        password: hashedPassword
+        password: hashedPassword,
       });
 
       console.log("User created successfully:", user.email);
@@ -77,12 +87,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = jwt.sign(
         { userId: user.id, email: user.email },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: "7d" },
       );
 
       res.json({
         user: { id: user.id, email: user.email, name: user.name },
-        token
+        token,
       });
     } catch (error) {
       console.error("Signup error:", error);
@@ -97,7 +107,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!email || !password) {
         console.log("Missing email or password");
-        return res.status(400).json({ error: "Email and password are required" });
+        return res
+          .status(400)
+          .json({ error: "Email and password are required" });
       }
 
       // Find user
@@ -120,12 +132,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = jwt.sign(
         { userId: user.id, email: user.email },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: "7d" },
       );
 
       res.json({
         user: { id: user.id, email: user.email, name: user.name },
-        token
+        token,
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -136,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/auth/validate-token", async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ error: "No token provided" });
       }
 
@@ -152,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         id: user.id,
         email: user.email,
-        name: user.name
+        name: user.name,
       });
     } catch (error) {
       console.error("Token validation error:", error);
@@ -229,41 +241,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (timePreference === "playlist") {
         // Handle playlist results
         videos = await Promise.all(
-          data.items
-            .map(async (item: any) => {
-              const title = item.snippet.title.toLowerCase();
-              const description = item.snippet.description?.toLowerCase() || "";
-              const channelTitle = item.snippet.channelTitle.toLowerCase();
+          data.items.map(async (item: any) => {
+            const title = item.snippet.title.toLowerCase();
+            const description = item.snippet.description?.toLowerCase() || "";
+            const channelTitle = item.snippet.channelTitle.toLowerCase();
 
-              // Filter out irrelevant playlists
-              const irrelevantKeywords = [
-                "music", "song", "funny", "meme", "reaction", "unboxing", 
-                "vlog", "shorts", "compilation", "best of", "top 10"
-              ];
-              const isIrrelevant = irrelevantKeywords.some(
-                (keyword) =>
-                  title.includes(keyword) || description.includes(keyword)
+            // Filter out irrelevant playlists
+            const irrelevantKeywords = [
+              "music",
+              "song",
+              "funny",
+              "meme",
+              "reaction",
+              "unboxing",
+              "vlog",
+              "shorts",
+              "compilation",
+              "best of",
+              "top 10",
+            ];
+            const isIrrelevant = irrelevantKeywords.some(
+              (keyword) =>
+                title.includes(keyword) || description.includes(keyword),
+            );
+
+            if (isIrrelevant) {
+              return null;
+            }
+
+            // Fetch videos from this playlist
+            try {
+              const playlistVideosUrl = new URL(
+                "https://www.googleapis.com/youtube/v3/playlistItems",
               );
+              playlistVideosUrl.searchParams.set("part", "snippet");
+              playlistVideosUrl.searchParams.set(
+                "playlistId",
+                item.id.playlistId,
+              );
+              playlistVideosUrl.searchParams.set("maxResults", "20");
+              playlistVideosUrl.searchParams.set("key", API_KEY);
 
-              if (isIrrelevant) {
-                return null;
+              const playlistResponse = await fetch(
+                playlistVideosUrl.toString(),
+              );
+              if (!playlistResponse.ok) {
+                throw new Error("Failed to fetch playlist videos");
               }
 
-              // Fetch videos from this playlist
-              try {
-                const playlistVideosUrl = new URL("https://www.googleapis.com/youtube/v3/playlistItems");
-                playlistVideosUrl.searchParams.set("part", "snippet");
-                playlistVideosUrl.searchParams.set("playlistId", item.id.playlistId);
-                playlistVideosUrl.searchParams.set("maxResults", "20");
-                playlistVideosUrl.searchParams.set("key", API_KEY);
-
-                const playlistResponse = await fetch(playlistVideosUrl.toString());
-                if (!playlistResponse.ok) {
-                  throw new Error("Failed to fetch playlist videos");
-                }
-
-                const playlistData = await playlistResponse.json();
-                const playlistVideos = playlistData.items?.map((playlistItem: any) => ({
+              const playlistData = await playlistResponse.json();
+              const playlistVideos =
+                playlistData.items?.map((playlistItem: any) => ({
                   id: playlistItem.snippet.resourceId.videoId,
                   title: playlistItem.snippet.title,
                   channel: playlistItem.snippet.channelTitle,
@@ -276,49 +304,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   playlistTitle: item.snippet.title,
                 })) || [];
 
-                // Determine difficulty for playlist
-                let difficulty: "Beginner" | "Intermediate" | "Advanced" = "Beginner";
-                if (title.includes("advanced") || title.includes("expert") || 
-                    title.includes("master") || title.includes("professional")) {
-                  difficulty = "Advanced";
-                } else if (title.includes("intermediate") || title.includes("beyond basic") ||
-                           title.includes("next level") || channelTitle.includes("pro")) {
-                  difficulty = "Intermediate";
-                }
-
-                return {
-                  id: item.id.playlistId,
-                  title: item.snippet.title,
-                  channel: item.snippet.channelTitle,
-                  duration: "Playlist",
-                  thumbnail: item.snippet.thumbnails.medium.url,
-                  difficulty,
-                  views: `${playlistVideos.length} videos`,
-                  isPlaylist: true,
-                  playlistVideos: playlistVideos,
-                };
-              } catch (error) {
-                console.error("Error fetching playlist videos:", error);
-                return {
-                  id: item.id.playlistId,
-                  title: item.snippet.title,
-                  channel: item.snippet.channelTitle,
-                  duration: "Playlist",
-                  thumbnail: item.snippet.thumbnails.medium.url,
-                  difficulty: "Intermediate",
-                  views: "Playlist",
-                  isPlaylist: true,
-                  playlistVideos: [],
-                };
+              // Determine difficulty for playlist
+              let difficulty: "Beginner" | "Intermediate" | "Advanced" =
+                "Beginner";
+              if (
+                title.includes("advanced") ||
+                title.includes("expert") ||
+                title.includes("master") ||
+                title.includes("professional")
+              ) {
+                difficulty = "Advanced";
+              } else if (
+                title.includes("intermediate") ||
+                title.includes("beyond basic") ||
+                title.includes("next level") ||
+                channelTitle.includes("pro")
+              ) {
+                difficulty = "Intermediate";
               }
-            })
+
+              return {
+                id: item.id.playlistId,
+                title: item.snippet.title,
+                channel: item.snippet.channelTitle,
+                duration: "Playlist",
+                thumbnail: item.snippet.thumbnails.medium.url,
+                difficulty,
+                views: `${playlistVideos.length} videos`,
+                isPlaylist: true,
+                playlistVideos: playlistVideos,
+              };
+            } catch (error) {
+              console.error("Error fetching playlist videos:", error);
+              return {
+                id: item.id.playlistId,
+                title: item.snippet.title,
+                channel: item.snippet.channelTitle,
+                duration: "Playlist",
+                thumbnail: item.snippet.thumbnails.medium.url,
+                difficulty: "Intermediate",
+                views: "Playlist",
+                isPlaylist: true,
+                playlistVideos: [],
+              };
+            }
+          }),
         );
         videos = videos.filter((video) => video !== null);
       } else {
         // Handle individual video results
-        const videoIds = data.items.map((item: any) => item.id.videoId).join(",");
+        const videoIds = data.items
+          .map((item: any) => item.id.videoId)
+          .join(",");
         const detailsUrl = new URL(
-          "https://www.googleapis.com/youtube/v3/videos"
+          "https://www.googleapis.com/youtube/v3/videos",
         );
         detailsUrl.searchParams.set("part", "contentDetails,statistics");
         detailsUrl.searchParams.set("id", videoIds);
@@ -335,7 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Parse ISO 8601 duration to readable format
             const durationMatch = duration.match(
-              /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
+              /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/,
             );
             const hours = durationMatch?.[1] || "0";
             const minutes = durationMatch?.[2] || "0";
@@ -343,7 +382,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
 
             // Filter out shorts (videos under 1 minute) and very long videos for quick learning
-            if (timePreference === "quick" && (totalMinutes < 1 || totalMinutes > 30)) {
+            if (
+              timePreference === "quick" &&
+              (totalMinutes < 1 || totalMinutes > 30)
+            ) {
               return null;
             }
 
@@ -356,24 +398,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
               hours !== "0"
                 ? `${hours}:${minutes.padStart(2, "0")}:${seconds.padStart(
                     2,
-                    "0"
+                    "0",
                   )}`
                 : `${minutes}:${seconds.padStart(2, "0")}`;
 
-          // Enhanced filtering and difficulty detection
+            // Enhanced filtering and difficulty detection
             const title = item.snippet.title.toLowerCase();
             const description = item.snippet.description?.toLowerCase() || "";
             const channelTitle = item.snippet.channelTitle.toLowerCase();
 
             // Skip videos that seem irrelevant or are shorts
             const irrelevantKeywords = [
-              "music", "song", "funny", "meme", "reaction", "unboxing", 
-              "vlog", "shorts", "short", "#shorts", "60 seconds", "1 minute",
-              "quick tip", "life hack", "compilation", "best moments"
+              "music",
+              "song",
+              "funny",
+              "meme",
+              "reaction",
+              "unboxing",
+              "vlog",
+              "shorts",
+              "short",
+              "#shorts",
+              "60 seconds",
+              "1 minute",
+              "quick tip",
+              "life hack",
+              "compilation",
+              "best moments",
             ];
             const isIrrelevant = irrelevantKeywords.some(
               (keyword) =>
-                title.includes(keyword) || description.includes(keyword)
+                title.includes(keyword) || description.includes(keyword),
             );
 
             if (isIrrelevant) {
@@ -382,13 +437,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Prefer educational channels and tutorial content
             const educationalKeywords = [
-              "tutorial", "course", "learn", "guide", "how to", "explained",
-              "introduction", "basics", "fundamentals", "programming", "coding"
+              "tutorial",
+              "course",
+              "learn",
+              "guide",
+              "how to",
+              "explained",
+              "introduction",
+              "basics",
+              "fundamentals",
+              "programming",
+              "coding",
             ];
             const isEducational = educationalKeywords.some(
               (keyword) =>
-                title.includes(keyword) || description.includes(keyword) ||
-                channelTitle.includes(keyword)
+                title.includes(keyword) ||
+                description.includes(keyword) ||
+                channelTitle.includes(keyword),
             );
 
             // Skip non-educational content for learning purposes
@@ -397,56 +462,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
 
             // Determine difficulty based on enhanced criteria and time preference
-            let difficulty: "Beginner" | "Intermediate" | "Advanced" = "Beginner";
+            let difficulty: "Beginner" | "Intermediate" | "Advanced" =
+              "Beginner";
 
-          if (
-            title.includes("advanced") ||
-            title.includes("expert") ||
-            title.includes("master") ||
-            totalMinutes > 180
-          ) {
-            difficulty = "Advanced";
-          } else if (
-            title.includes("intermediate") ||
-            title.includes("complete") ||
-            title.includes("full course") ||
-            totalMinutes > 45 ||
-            timePreference === "one-shot"
-          ) {
-            difficulty = "Intermediate";
-          } else if (
-            title.includes("beginner") ||
-            title.includes("crash course") ||
-            title.includes("basics") ||
-            title.includes("intro") ||
-            timePreference === "quick"
-          ) {
-            difficulty = "Beginner";
-          }
-
-          // Special handling for playlist preference
-          if (
-            timePreference === "playlist" &&
-            (title.includes("playlist") ||
-              title.includes("series") ||
-              channelTitle.includes("academy") ||
-              channelTitle.includes("course"))
-          ) {
-            difficulty = "Intermediate";
-          }
-
-          // Enhanced difficulty detection
-            if (title.includes("advanced") || title.includes("expert") || 
-                title.includes("master") || title.includes("professional") ||
-                totalMinutes > 120) {
+            if (
+              title.includes("advanced") ||
+              title.includes("expert") ||
+              title.includes("master") ||
+              totalMinutes > 180
+            ) {
               difficulty = "Advanced";
-            } else if (title.includes("intermediate") || title.includes("beyond basic") ||
-                       title.includes("next level") || channelTitle.includes("pro") ||
-                       (totalMinutes > 30 && totalMinutes <= 120)) {
+            } else if (
+              title.includes("intermediate") ||
+              title.includes("complete") ||
+              title.includes("full course") ||
+              totalMinutes > 45 ||
+              timePreference === "one-shot"
+            ) {
               difficulty = "Intermediate";
-            } else if (title.includes("beginner") || title.includes("intro") ||
-                       title.includes("basics") || title.includes("fundamentals") ||
-                       title.includes("getting started") || totalMinutes <= 30) {
+            } else if (
+              title.includes("beginner") ||
+              title.includes("crash course") ||
+              title.includes("basics") ||
+              title.includes("intro") ||
+              timePreference === "quick"
+            ) {
+              difficulty = "Beginner";
+            }
+
+            // Special handling for playlist preference
+            if (
+              timePreference === "playlist" &&
+              (title.includes("playlist") ||
+                title.includes("series") ||
+                channelTitle.includes("academy") ||
+                channelTitle.includes("course"))
+            ) {
+              difficulty = "Intermediate";
+            }
+
+            // Enhanced difficulty detection
+            if (
+              title.includes("advanced") ||
+              title.includes("expert") ||
+              title.includes("master") ||
+              title.includes("professional") ||
+              totalMinutes > 120
+            ) {
+              difficulty = "Advanced";
+            } else if (
+              title.includes("intermediate") ||
+              title.includes("beyond basic") ||
+              title.includes("next level") ||
+              channelTitle.includes("pro") ||
+              (totalMinutes > 30 && totalMinutes <= 120)
+            ) {
+              difficulty = "Intermediate";
+            } else if (
+              title.includes("beginner") ||
+              title.includes("intro") ||
+              title.includes("basics") ||
+              title.includes("fundamentals") ||
+              title.includes("getting started") ||
+              totalMinutes <= 30
+            ) {
               difficulty = "Beginner";
             }
 
@@ -454,7 +533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (timePreference === "quick") {
               difficulty = "Beginner"; // Quick videos are usually beginner-friendly
             } else if (timePreference === "one-shot" && totalMinutes > 60) {
-              difficulty = difficulty === "Beginner" ? "Intermediate" : difficulty;
+              difficulty =
+                difficulty === "Beginner" ? "Intermediate" : difficulty;
             }
 
             return {
@@ -530,7 +610,7 @@ Focus on practical, well-known books that are actually available and useful for 
               },
             ],
           }),
-        }
+        },
       );
 
       if (!geminiResponse.ok) {
@@ -563,13 +643,13 @@ Focus on practical, well-known books that are actually available and useful for 
       const books = await Promise.all(
         bookRecommendations.map(async (book: any, index: number) => {
           let pdfUrl = `https://www.google.com/search?q=${encodeURIComponent(
-            book.title + " " + book.author + " filetype:pdf"
+            book.title + " " + book.author + " filetype:pdf",
           )}`;
 
           // Try to find actual PDF URLs by scraping search results
           try {
             const searchQuery = encodeURIComponent(
-              `${book.title} ${book.author} filetype:pdf`
+              `${book.title} ${book.author} filetype:pdf`,
             );
             const searchUrl = `https://www.googleapis.com/customsearch/v1?key=${
               process.env.GOOGLE_SEARCH_API_KEY || ""
@@ -586,7 +666,7 @@ Focus on practical, well-known books that are actually available and useful for 
                 const pdfResult = searchData.items?.find(
                   (item: any) =>
                     item.link?.toLowerCase().endsWith(".pdf") ||
-                    item.fileFormat === "PDF"
+                    item.fileFormat === "PDF",
                 );
                 if (pdfResult) {
                   pdfUrl = pdfResult.link;
@@ -603,14 +683,14 @@ Focus on practical, well-known books that are actually available and useful for 
             author: book.author || "Unknown Author",
             description: book.description || "No description available",
             previewUrl: `https://www.google.com/search?q=${encodeURIComponent(
-              book.title + " " + book.author + " preview"
+              book.title + " " + book.author + " preview",
             )}`,
             downloadUrl: pdfUrl,
             totalPages: book.pages || 350,
             rating: 4.5,
             difficulty: book.difficulty || "Intermediate",
           };
-        })
+        }),
       );
 
       res.json(books);
@@ -879,7 +959,7 @@ Focus on practical, well-known books that are actually available and useful for 
       }
 
       // Enhanced prompt for better, more focused responses
-      const enhancedPrompt = `You are LearnMaster AI, an intelligent learning assistant focused on education and skill development. 
+      const enhancedPrompt = `You are Edubuddy chat assistant strongly rasied by our cow's milk, an intelligent learning assistant focused on education and skill development. 
 
 User message: "${message}"
 
@@ -937,7 +1017,7 @@ Response:`;
               },
             ],
           }),
-        }
+        },
       );
 
       if (!geminiResponse.ok) {
@@ -1089,12 +1169,12 @@ Response:`;
   });
 
   // Hangman word generation endpoint
-  app.post('/api/generate-hangman', async (req, res) => {
+  app.post("/api/generate-hangman", async (req, res) => {
     try {
       const { theme } = req.body;
 
       if (!theme) {
-        return res.status(400).json({ error: 'Theme is required' });
+        return res.status(400).json({ error: "Theme is required" });
       }
 
       const prompt = `Generate a hangman word for the theme "${theme}". 
@@ -1113,67 +1193,95 @@ Response:`;
 
       Make it educational and appropriate for all ages.`;
 
-      const result = await gemini.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 200,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-        ],
-      });
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      if (!GEMINI_API_KEY) {
+        return res.status(500).json({ error: "Gemini API key not configured" });
+      }
 
-      const response = result.response;
-      const text = response.text();
-      
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 200,
+            },
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE",
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE",
+              },
+              {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE",
+              },
+              {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE",
+              },
+            ],
+          }),
+        },
+      );
+
+      if (!geminiResponse.ok) {
+        throw new Error(`Gemini API error: ${geminiResponse.status}`);
+      }
+
+      const geminiData = await geminiResponse.json();
+      const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
       try {
-        const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+        const cleanedText = text.replace(/```json\n?|\n?```/g, "").trim();
         const hangmanData = JSON.parse(cleanedText);
-        
+
         // Validate the response
         if (!hangmanData.word || !hangmanData.hint || !hangmanData.category) {
-          throw new Error('Invalid response format');
+          throw new Error("Invalid response format");
         }
 
         // Ensure word is uppercase and only contains letters
-        hangmanData.word = hangmanData.word.toUpperCase().replace(/[^A-Z]/g, '');
-        
+        hangmanData.word = hangmanData.word
+          .toUpperCase()
+          .replace(/[^A-Z]/g, "");
+
         res.json(hangmanData);
       } catch (parseError) {
-        console.error('Error parsing hangman response:', parseError);
-        res.status(500).json({ error: 'Failed to parse AI response' });
+        console.error("Error parsing hangman response:", parseError);
+        res.status(500).json({ error: "Failed to parse AI response" });
       }
     } catch (error) {
-      console.error('Error generating hangman word:', error);
-      res.status(500).json({ error: 'Failed to generate hangman word' });
+      console.error("Error generating hangman word:", error);
+      res.status(500).json({ error: "Failed to generate hangman word" });
     }
   });
 
   // Crossword generation endpoint
-  app.post('/api/generate-crossword', async (req, res) => {
+  app.post("/api/generate-crossword", async (req, res) => {
     try {
       const { theme } = req.body;
 
       if (!theme) {
-        return res.status(400).json({ error: 'Theme is required' });
+        return res.status(400).json({ error: "Theme is required" });
       }
 
       const prompt = `Generate a crossword puzzle with exactly 4 clues for the theme "${theme}". 
@@ -1228,7 +1336,7 @@ Response:`;
       if (!GEMINI_API_KEY) {
         return res.status(500).json({ error: "Gemini API key not configured" });
       }
-       const geminiResponse = await fetch(
+      const geminiResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
@@ -1246,7 +1354,7 @@ Response:`;
               },
             ],
           }),
-        }
+        },
       );
 
       if (!geminiResponse.ok) {
@@ -1254,22 +1362,23 @@ Response:`;
       }
 
       const geminiData = await geminiResponse.json();
-      const generatedContent = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+      const generatedContent =
+        geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
 
       // Extract JSON from the response
       const jsonMatch = generatedContent?.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('No valid JSON found in response');
+        throw new Error("No valid JSON found in response");
       }
 
       const crosswordData = JSON.parse(jsonMatch[0]);
 
       res.json(crosswordData);
     } catch (error) {
-      console.error('Error generating crossword:', error);
-      res.status(500).json({ 
-        error: 'Failed to generate crossword', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+      console.error("Error generating crossword:", error);
+      res.status(500).json({
+        error: "Failed to generate crossword",
+        details: error instanceof Error ? error.message : "Unknown error",
       });
     }
   });

@@ -9,11 +9,40 @@
   ],
   "learningHistories": [],
   "breakSessions": [],
-  "messages": [],
+  "messages": [
+    {
+      "id": 1,
+      "content": "who are you?",
+      "role": "user",
+      "sessionId": "CJ-7UFdCqjQrZxKHAXQ1r",
+      "createdAt": "2025-05-29T18:29:51.106Z"
+    },
+    {
+      "id": 2,
+      "content": "Hi there! I'm LearnMaster AI, your friendly AI learning assistant.  I'm here to help you learn and develop new skills.  I can assist with a wide range of topics, from explaining complex concepts to helping you practice problem-solving.  Think of me as your personal tutor, available whenever you need a boost in your learning journey.  Just ask me a question or tell me what you'd like to learn!",
+      "role": "assistant",
+      "sessionId": "CJ-7UFdCqjQrZxKHAXQ1r",
+      "createdAt": "2025-05-29T18:29:54.946Z"
+    },
+    {
+      "id": 3,
+      "content": "who are u>",
+      "role": "user",
+      "sessionId": "_hHhWxbjC293A0WnwT4Bc",
+      "createdAt": "2025-05-29T18:30:17.459Z"
+    },
+    {
+      "id": 4,
+      "content": "Hi there! I'm Edubuddy, your friendly AI learning assistant.  I'm here to help you learn and develop new skills.  Think of me as your personal study buddy, ready to answer your questions, explain concepts, and offer support.  Ask me anything!",
+      "role": "assistant",
+      "sessionId": "_hHhWxbjC293A0WnwT4Bc",
+      "createdAt": "2025-05-29T18:30:19.788Z"
+    }
+  ],
   "currentUserId": 2,
   "currentHistoryId": 1,
   "currentSessionId": 1,
-  "currentMessageId": 1,
+  "currentMessageId": 5,
   "videos": [],
   "videoId": 1
 }
