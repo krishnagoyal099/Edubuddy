@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -101,88 +100,148 @@ export default function Welcome() {
         </div>
       </main>
 
-      {/* Features Section */}
+      {/* Features Demo Section */}
       <section id="features" className="py-20 px-4 bg-white/50 dark:bg-gray-800/50">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Powerful Features for Modern Learning
+              Try Our Features Live
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              EduBuddy transforms your study sessions with AI-generated content, interactive games, and comprehensive resource discovery
+              Experience EduBuddy's powerful learning tools with interactive demos
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                  <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Break Feature Demo */}
+            <Card className="border-2 border-purple-200 dark:border-purple-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Target className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground">Focus Break</h3>
+                    <p className="text-muted-foreground">Productive breaks with games</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">AI-Generated Content</h3>
-                <p className="text-muted-foreground">
-                  Convert YouTube videos and documents into structured notes, flashcards, and study materials automatically
-                </p>
+
+                {/* Break Video Demo */}
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 mb-6">
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black/5 dark:bg-white/5">
+                    <video 
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full rounded-lg object-cover"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      <source src="/break-demo.mp4" type="video/mp4" />
+                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <div className="text-4xl mb-4">🎥</div>
+                        <p>Break mode demo</p>
+                      </div>
+                    </video>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={() => {
+                    if (user) {
+                      setLocation('/break');
+                    } else {
+                      setShowLoginModal(true);
+                    }
+                  }} 
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3"
+                >
+                  Try Break Mode →
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                  <Target className="h-6 w-6 text-green-600 dark:text-green-400" />
+            {/* Revision Feature Demo */}
+            <Card className="border-2 border-blue-200 dark:border-blue-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <BookOpen className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground">Smart Revision</h3>
+                    <p className="text-muted-foreground">AI-generated study materials</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Smart Quizzes & Games</h3>
-                <p className="text-muted-foreground">
-                  Engage with interactive quizzes, hangman, crosswords, and memory games tailored to your content
-                </p>
+
+                <Button 
+                  onClick={() => {
+                    if (user) {
+                      setLocation('/revision');
+                    } else {
+                      setShowLoginModal(true);
+                    }
+                  }} 
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3"
+                >
+                  Try Revision Hub →
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            {/* Chat Feature Demo */}
+            <Card className="border-2 border-green-200 dark:border-green-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Zap className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground">AI Chat Assistant</h3>
+                    <p className="text-muted-foreground">Get instant learning help</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">AI Study Assistant</h3>
-                <p className="text-muted-foreground">
-                  Chat with AI about your content, get explanations, and receive personalized study guidance
-                </p>
+
+                <Button 
+                  onClick={() => {
+                    if (user) {
+                      setLocation('/chat');
+                    } else {
+                      setShowLoginModal(true);
+                    }
+                  }} 
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3"
+                >
+                  Try AI Chat →
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
-                  <Star className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+            {/* Find Resources Feature Demo */}
+            <Card className="border-2 border-orange-200 dark:border-orange-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Brain className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground">Find Resources</h3>
+                    <p className="text-muted-foreground">Discover curated learning materials</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Progress Tracking</h3>
-                <p className="text-muted-foreground">
-                  Track your learning progress with detailed analytics and compete on leaderboards
-                </p>
-              </CardContent>
-            </Card>
 
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Break Reminders</h3>
-                <p className="text-muted-foreground">
-                  Stay productive with intelligent break reminders and focus techniques for optimal learning
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center mb-4">
-                  <Brain className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">Resource Discovery</h3>
-                <p className="text-muted-foreground">
-                  Find the best free learning resources curated by AI for any topic you want to learn
-                </p>
+                <Button 
+                  onClick={() => {
+                    if (user) {
+                      setLocation('/find-resources');
+                    } else {
+                      setShowLoginModal(true);
+                    }
+                  }} 
+                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-semibold py-3"
+                >
+                  Find Resources →
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -211,7 +270,6 @@ export default function Welcome() {
       <LoginModal 
         isOpen={showLoginModal} 
         onClose={() => setShowLoginModal(false)}
-        onSuccess={handleLoginSuccess}
       />
     </div>
   );

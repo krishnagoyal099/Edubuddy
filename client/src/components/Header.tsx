@@ -13,10 +13,11 @@ export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
   const [location, setLocation] = useLocation();
 
   const handleLogoClick = () => {
-    if (location === "/") {
+    if (location === "/home") {
       window.location.reload();
     } else {
-      setLocation("/");
+      // Always redirect to home page when clicking logo from other pages
+      setLocation("/home");
     }
     if (onLogoClick) onLogoClick();
   };
