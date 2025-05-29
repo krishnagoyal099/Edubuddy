@@ -45,3 +45,4 @@ function App() {
 }
 
 export default App;
+// This is the main entry point of the application.
