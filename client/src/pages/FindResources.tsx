@@ -116,7 +116,7 @@ export default function FindResources() {
             Find Learning Resources
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Discover curated learning resources from learn-anything.xyz for any topic you want to master.
+            Discover curated learning resources for any topic you want to master.
           </p>
         </div>
 
