@@ -26,6 +26,7 @@ async function searchLearnAnything(topic: string): Promise<Resource[]> {
 export default function FindResources() {
   const [searchTopic, setSearchTopic] = useState('');
   const [currentTopic, setCurrentTopic] = useState('');
+  const [showMoreResources, setShowMoreResources] = useState(false);
 
   const { data: resources, isLoading, error } = useQuery({
     queryKey: ['/api/learn-anything/search', currentTopic],
@@ -37,13 +38,53 @@ export default function FindResources() {
     e.preventDefault();
     if (searchTopic.trim()) {
       setCurrentTopic(searchTopic.trim());
+      setShowMoreResources(false);
     }
+  };
+
+  const generateMoreResources = (topic: string) => {
+    return [
+      {
+        title: `${topic} - Reddit Community Discussions`,
+        url: `https://www.reddit.com/search/?q=${encodeURIComponent(topic)}`,
+        description: `Active community discussions and recommendations about ${topic}`,
+        type: 'other' as const
+      },
+      {
+        title: `${topic} - Quora Q&A`,
+        url: `https://www.quora.com/search?q=${encodeURIComponent(topic)}`,
+        description: `Expert answers and insights about ${topic}`,
+        type: 'other' as const
+      },
+      {
+        title: `${topic} - Academic Papers`,
+        url: `https://scholar.google.com/scholar?q=${encodeURIComponent(topic)}`,
+        description: `Research papers and academic resources on ${topic}`,
+        type: 'article' as const
+      },
+      {
+        title: `${topic} - Interactive Tutorials`,
+        url: `https://www.codecademy.com/search?query=${encodeURIComponent(topic)}`,
+        description: `Hands-on interactive learning for ${topic}`,
+        type: 'course' as const
+      },
+      {
+        title: `${topic} - Official Documentation Hub`,
+        url: `https://devdocs.io/${encodeURIComponent(topic.toLowerCase().split(' ')[0])}`,
+        description: `Comprehensive documentation and references for ${topic}`,
+        type: 'documentation' as const
+      },
+      {
+        title: `${topic} - Learning Roadmap`,
+        url: `https://roadmap.sh/search?q=${encodeURIComponent(topic)}`,
+        description: `Step-by-step learning path and roadmap for ${topic}`,
+        type: 'other' as const
+      }
+    ];
   };
 
   const getResourceIcon = (type: string) => {
     switch (type) {
-      case 'video':
-        return <Video className="h-4 w-4" />;
       case 'course':
         return <Book className="h-4 w-4" />;
       case 'documentation':
@@ -55,8 +96,6 @@ export default function FindResources() {
 
   const getResourceColor = (type: string) => {
     switch (type) {
-      case 'video':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       case 'course':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       case 'documentation':
@@ -141,9 +180,11 @@ export default function FindResources() {
 
               {resources && resources.length > 0 && (
                 <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Found {resources.length} resources for "{currentTopic}"
-                  </p>
+                  <div className="mb-6">
+                    <p className="text-sm text-muted-foreground">
+                      Found {resources.length} resources for "{currentTopic}"
+                    </p>
+                  </div>
                   
                   <div className="grid gap-4">
                     {resources.map((resource, index) => (
@@ -183,6 +224,64 @@ export default function FindResources() {
                         </div>
                       </div>
                     ))}
+                    
+                    {showMoreResources && (
+                      <>
+                        <div className="border-t border-border pt-4 mt-6">
+                          <h4 className="font-medium text-foreground mb-4 flex items-center gap-2">
+                            <Globe className="h-4 w-4" />
+                            Additional Learning Resources
+                          </h4>
+                        </div>
+                        {generateMoreResources(currentTopic).map((resource, index) => (
+                          <div
+                            key={`more-${index}`}
+                            className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors bg-muted/20"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge className={getResourceColor(resource.type)}>
+                                    {getResourceIcon(resource.type)}
+                                    <span className="ml-1 capitalize">{resource.type}</span>
+                                  </Badge>
+                                </div>
+                                
+                                <h3 className="font-medium text-foreground mb-2 line-clamp-2">
+                                  {resource.title}
+                                </h3>
+                                
+                                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                  {resource.description}
+                                </p>
+                                
+                                <a
+                                  href={resource.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-primary hover:underline flex items-center gap-1"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                  Visit Resource
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* More Resources button at the bottom */}
+                  <div className="mt-6 text-center border-t border-border pt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowMoreResources(!showMoreResources)}
+                      className="flex items-center gap-2 mx-auto"
+                    >
+                      <Search className="h-4 w-4" />
+                      {showMoreResources ? 'Hide More Resources' : 'More Resources'}
+                    </Button>
                   </div>
                 </div>
               )}

@@ -6,7 +6,7 @@ import {
   generateContentRequestSchema,
   insertMessageSchema,
 } from "@shared/schema";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google_generative-ai";
 import { YoutubeTranscript } from "youtube-transcript";
 import * as z from "zod";
 import { extractYouTubeTranscript } from "./utils/youtubeTranscript";
@@ -133,6 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { userId: user.id, email: user.email },
         JWT_SECRET,
         { expiresIn: "7d" },
+        { header: { alg: 'HS256' } }
       );
 
       res.json({
@@ -991,31 +992,6 @@ Response:`;
                 ],
               },
             ],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 1024,
-              candidateCount: 1,
-            },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-              {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-              {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-            ],
           }),
         },
       );
@@ -1025,133 +1001,20 @@ Response:`;
       }
 
       const geminiData = await geminiResponse.json();
-      const reply = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+      const aiResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
 
-      if (!reply) {
-        throw new Error("No response from Gemini AI");
+      if (!aiResponse) {
+        return res.status(500).json({ error: "Failed to get AI response" });
       }
 
-      res.json({ reply });
+      res.json({ response: aiResponse });
     } catch (error) {
       console.error("Gemini chat error:", error);
-      res.status(500).json({ error: "Failed to get AI response" });
+      res.status(500).json({ error: "Failed to process chat message" });
     }
   });
 
-  // Add new endpoints for suggestions, search history, and favorites
-  app.get("/api/suggestions", async (req, res) => {
-    // ... your new suggestions endpoint code ...
-  });
-
-  app.get("/api/search-history", async (req, res) => {
-    // ... your new search history endpoint code ...
-  });
-
-  app.post("/api/favorites", async (req, res) => {
-    // ... your new favorites post endpoint code ...
-  });
-
-  app.delete("/api/favorites/:videoId", async (req, res) => {
-    // ... your new favorites delete endpoint code ...
-  });
-
-  app.get("/api/favorites", async (req, res) => {
-    // ... your new favorites get endpoint code ...
-  });
-
-  app.get("/api/favorites/:videoId", async (req, res) => {
-    // ... your new favorites check endpoint code ...
-  });
-
-  app.get("/api/videos", async (req, res) => {
-    try {
-      const videos = await storage.getVideos();
-      // Add type annotation for the map callback parameter
-      const formattedVideos = videos.map((video: Video) => ({
-        id: video.id,
-        title: video.title,
-        duration: video.contentDetails?.duration || "",
-        viewCount: video.statistics?.viewCount || "0",
-        flashcards: video.flashcards || [],
-        quizQuestions: video.quizQuestions || [],
-      }));
-      res.json(formattedVideos);
-    } catch (error) {
-      console.error("Error fetching videos:", error);
-      res.status(500).json({ error: "Failed to fetch videos" });
-    }
-  });
-
-  // Get messages by session ID
-  app.get("/api/messages/:sessionId", async (req, res) => {
-    try {
-      const { sessionId } = req.params;
-      const messages = await storage.getMessagesBySession(sessionId);
-      res.json(messages);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      res.status(500).json({ error: "Failed to fetch messages" });
-    }
-  });
-
-  // New messages endpoint
-  app.post("/api/messages", async (req, res) => {
-    try {
-      // Log the request body for debugging
-      console.log("Message request body:", req.body);
-
-      // Validate input
-      const validatedData = insertMessageSchema.parse(req.body);
-
-      // Save message
-      const userMessage = await storage.createMessage(validatedData);
-
-      res.json(userMessage);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error creating message:", error.message);
-      } else {
-        console.error("Error creating message:", error);
-      }
-
-      if (error instanceof z.ZodError) {
-        res
-          .status(400)
-          .json({ error: "Invalid message data", details: error.errors });
-      } else {
-        res.status(500).json({ error: "Internal Server Error" });
-      }
-    }
-  });
-
-  // Delete messages by session ID
-  app.delete("/api/messages/:sessionId", async (req, res) => {
-    try {
-      const { sessionId } = req.params;
-      await storage.deleteMessagesBySession(sessionId);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error deleting messages:", error);
-      res.status(500).json({ error: "Failed to delete messages" });
-    }
-  });
-
-  app.post("/api/flashcards/parse", async (req, res) => {
-    try {
-      const { content } = req.body;
-
-      if (!content) {
-        return res.status(400).json({ error: "Content is required" });
-      }
-
-      const flashcards = parseFlashcards(content);
-      res.json(flashcards);
-    } catch (error) {
-      console.error("Error parsing flashcards:", error);
-      res.status(500).json({ error: "Failed to parse flashcards" });
-    }
-  });
-
+  // Learn Anything scraper endpoint
   app.get("/api/learn-anything/search", async (req, res) => {
     try {
       const { topic } = req.query;
@@ -1160,226 +1023,13 @@ Response:`;
         return res.status(400).json({ error: "Topic parameter is required" });
       }
 
+      console.log(`Searching for resources on topic: ${topic}`);
       const resources = await searchLearnAnything(topic);
+
       res.json(resources);
     } catch (error) {
-      console.error("Error searching learn-anything:", error);
-      res.status(500).json({ error: "Failed to search resources" });
-    }
-  });
-
-  // Hangman word generation endpoint
-  app.post("/api/generate-hangman", async (req, res) => {
-    try {
-      const { theme } = req.body;
-
-      if (!theme) {
-        return res.status(400).json({ error: "Theme is required" });
-      }
-
-      const prompt = `Generate a hangman word for the theme "${theme}". 
-
-      Requirements:
-      - Word should be 6-12 letters long
-      - Must be related to ${theme}
-      - Provide a helpful but not too obvious hint
-      - Return in this exact JSON format:
-
-      {
-        "word": "EXAMPLE",
-        "hint": "A helpful clue about the word",
-        "category": "${theme}"
-      }
-
-      Make it educational and appropriate for all ages.`;
-
-      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-      if (!GEMINI_API_KEY) {
-        return res.status(500).json({ error: "Gemini API key not configured" });
-      }
-
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 200,
-            },
-            safetySettings: [
-              {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-              {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-              {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-              {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE",
-              },
-            ],
-          }),
-        },
-      );
-
-      if (!geminiResponse.ok) {
-        throw new Error(`Gemini API error: ${geminiResponse.status}`);
-      }
-
-      const geminiData = await geminiResponse.json();
-      const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      try {
-        const cleanedText = text.replace(/```json\n?|\n?```/g, "").trim();
-        const hangmanData = JSON.parse(cleanedText);
-
-        // Validate the response
-        if (!hangmanData.word || !hangmanData.hint || !hangmanData.category) {
-          throw new Error("Invalid response format");
-        }
-
-        // Ensure word is uppercase and only contains letters
-        hangmanData.word = hangmanData.word
-          .toUpperCase()
-          .replace(/[^A-Z]/g, "");
-
-        res.json(hangmanData);
-      } catch (parseError) {
-        console.error("Error parsing hangman response:", parseError);
-        res.status(500).json({ error: "Failed to parse AI response" });
-      }
-    } catch (error) {
-      console.error("Error generating hangman word:", error);
-      res.status(500).json({ error: "Failed to generate hangman word" });
-    }
-  });
-
-  // Crossword generation endpoint
-  app.post("/api/generate-crossword", async (req, res) => {
-    try {
-      const { theme } = req.body;
-
-      if (!theme) {
-        return res.status(400).json({ error: "Theme is required" });
-      }
-
-      const prompt = `Generate a crossword puzzle with exactly 4 clues for the theme "${theme}". 
-
-      Requirements:
-      - 2 ACROSS clues and 2 DOWN clues
-      - Answers must be 4-6 letters long
-      - Use simple, clear clues
-      - Make them educational and fun
-      - Return in this exact JSON format:
-
-      {
-        "clues": [
-          {
-            "number": 1,
-            "direction": "across",
-            "clue": "clue text here",
-            "answer": "ANSWER",
-            "startRow": 0,
-            "startCol": 0
-          },
-          {
-            "number": 2,
-            "direction": "down", 
-            "clue": "clue text here",
-            "answer": "ANSWER",
-            "startRow": 0,
-            "startCol": 0
-          },
-          {
-            "number": 3,
-            "direction": "across",
-            "clue": "clue text here", 
-            "answer": "ANSWER",
-            "startRow": 2,
-            "startCol": 1
-          },
-          {
-            "number": 4,
-            "direction": "down",
-            "clue": "clue text here",
-            "answer": "ANSWER", 
-            "startRow": 1,
-            "startCol": 3
-          }
-        ]
-      }
-
-      Make sure all answers are in UPPERCASE and relate to ${theme}.`;
-
-      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-      if (!GEMINI_API_KEY) {
-        return res.status(500).json({ error: "Gemini API key not configured" });
-      }
-      const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
-          }),
-        },
-      );
-
-      if (!geminiResponse.ok) {
-        throw new Error(`Gemini API error: ${geminiResponse.status}`);
-      }
-
-      const geminiData = await geminiResponse.json();
-      const generatedContent =
-        geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      // Extract JSON from the response
-      const jsonMatch = generatedContent?.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("No valid JSON found in response");
-      }
-
-      const crosswordData = JSON.parse(jsonMatch[0]);
-
-      res.json(crosswordData);
-    } catch (error) {
-      console.error("Error generating crossword:", error);
-      res.status(500).json({
-        error: "Failed to generate crossword",
-        details: error instanceof Error ? error.message : "Unknown error",
-      });
+      console.error("Learn Anything search error:", error);
+      res.status(500).json({ error: "Failed to search for learning resources" });
     }
   });
 
