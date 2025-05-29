@@ -1087,6 +1087,193 @@ Response:`;
       res.status(500).json({ error: "Failed to search resources" });
     }
   });
+
+  // Hangman word generation endpoint
+  app.post('/api/generate-hangman', async (req, res) => {
+    try {
+      const { theme } = req.body;
+
+      if (!theme) {
+        return res.status(400).json({ error: 'Theme is required' });
+      }
+
+      const prompt = `Generate a hangman word for the theme "${theme}". 
+
+      Requirements:
+      - Word should be 6-12 letters long
+      - Must be related to ${theme}
+      - Provide a helpful but not too obvious hint
+      - Return in this exact JSON format:
+
+      {
+        "word": "EXAMPLE",
+        "hint": "A helpful clue about the word",
+        "category": "${theme}"
+      }
+
+      Make it educational and appropriate for all ages.`;
+
+      const result = await gemini.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 200,
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE",
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE",
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE",
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE",
+          },
+        ],
+      });
+
+      const response = result.response;
+      const text = response.text();
+      
+      try {
+        const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+        const hangmanData = JSON.parse(cleanedText);
+        
+        // Validate the response
+        if (!hangmanData.word || !hangmanData.hint || !hangmanData.category) {
+          throw new Error('Invalid response format');
+        }
+
+        // Ensure word is uppercase and only contains letters
+        hangmanData.word = hangmanData.word.toUpperCase().replace(/[^A-Z]/g, '');
+        
+        res.json(hangmanData);
+      } catch (parseError) {
+        console.error('Error parsing hangman response:', parseError);
+        res.status(500).json({ error: 'Failed to parse AI response' });
+      }
+    } catch (error) {
+      console.error('Error generating hangman word:', error);
+      res.status(500).json({ error: 'Failed to generate hangman word' });
+    }
+  });
+
+  // Crossword generation endpoint
+  app.post('/api/generate-crossword', async (req, res) => {
+    try {
+      const { theme } = req.body;
+
+      if (!theme) {
+        return res.status(400).json({ error: 'Theme is required' });
+      }
+
+      const prompt = `Generate a crossword puzzle with exactly 4 clues for the theme "${theme}". 
+
+      Requirements:
+      - 2 ACROSS clues and 2 DOWN clues
+      - Answers must be 4-6 letters long
+      - Use simple, clear clues
+      - Make them educational and fun
+      - Return in this exact JSON format:
+
+      {
+        "clues": [
+          {
+            "number": 1,
+            "direction": "across",
+            "clue": "clue text here",
+            "answer": "ANSWER",
+            "startRow": 0,
+            "startCol": 0
+          },
+          {
+            "number": 2,
+            "direction": "down", 
+            "clue": "clue text here",
+            "answer": "ANSWER",
+            "startRow": 0,
+            "startCol": 0
+          },
+          {
+            "number": 3,
+            "direction": "across",
+            "clue": "clue text here", 
+            "answer": "ANSWER",
+            "startRow": 2,
+            "startCol": 1
+          },
+          {
+            "number": 4,
+            "direction": "down",
+            "clue": "clue text here",
+            "answer": "ANSWER", 
+            "startRow": 1,
+            "startCol": 3
+          }
+        ]
+      }
+
+      Make sure all answers are in UPPERCASE and relate to ${theme}.`;
+
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      if (!GEMINI_API_KEY) {
+        return res.status(500).json({ error: "Gemini API key not configured" });
+      }
+       const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      if (!geminiResponse.ok) {
+        throw new Error(`Gemini API error: ${geminiResponse.status}`);
+      }
+
+      const geminiData = await geminiResponse.json();
+      const generatedContent = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      // Extract JSON from the response
+      const jsonMatch = generatedContent?.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in response');
+      }
+
+      const crosswordData = JSON.parse(jsonMatch[0]);
+
+      res.json(crosswordData);
+    } catch (error) {
+      console.error('Error generating crossword:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate crossword', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
