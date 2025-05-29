@@ -37,12 +37,54 @@
       "role": "assistant",
       "sessionId": "_hHhWxbjC293A0WnwT4Bc",
       "createdAt": "2025-05-29T18:30:19.788Z"
+    },
+    {
+      "id": 5,
+      "content": "hello",
+      "role": "user",
+      "sessionId": "aIscsq_5uhB02BaNJIs85",
+      "createdAt": "2025-05-29T22:05:14.102Z"
+    },
+    {
+      "id": 6,
+      "content": "Hello!  How can I help you learn something new today?  Let me know what you're interested in or what skills you'd like to develop.  I can assist with a wide range of subjects.",
+      "role": "assistant",
+      "sessionId": "aIscsq_5uhB02BaNJIs85",
+      "createdAt": "2025-05-29T22:05:17.402Z"
+    },
+    {
+      "id": 7,
+      "content": "who are you?",
+      "role": "user",
+      "sessionId": "B6Lo2AFKn1g__M3AZtsZw",
+      "createdAt": "2025-05-29T22:05:29.863Z"
+    },
+    {
+      "id": 8,
+      "content": "Hi there! I'm Edubuddy, your friendly AI learning assistant.  I'm here to help you learn and develop new skills.  I can assist with a wide range of topics, from explaining complex concepts to helping you practice problem-solving.  Think of me as your personal tutor, always ready to answer your questions and offer support.  Just ask me anything!",
+      "role": "assistant",
+      "sessionId": "B6Lo2AFKn1g__M3AZtsZw",
+      "createdAt": "2025-05-29T22:05:32.038Z"
+    },
+    {
+      "id": 9,
+      "content": "hello",
+      "role": "user",
+      "sessionId": "gjK9qyDy7xUj7LpMLmR7f",
+      "createdAt": "2025-05-29T22:05:47.254Z"
+    },
+    {
+      "id": 10,
+      "content": "Hi there!  How can I help you learn something new today?  Let me know what you're interested in or what skills you'd like to develop.",
+      "role": "assistant",
+      "sessionId": "gjK9qyDy7xUj7LpMLmR7f",
+      "createdAt": "2025-05-29T22:05:50.680Z"
     }
   ],
   "currentUserId": 2,
   "currentHistoryId": 1,
   "currentSessionId": 1,
-  "currentMessageId": 5,
+  "currentMessageId": 11,
   "videos": [],
   "videoId": 1
 }

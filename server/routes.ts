@@ -960,7 +960,7 @@ Focus on practical, well-known books that are actually available and useful for 
       }
 
       // Enhanced prompt for better, more focused responses
-      const enhancedPrompt = `You are Edubuddy chat assistant strongly rasied by our cow's milk, an intelligent learning assistant focused on education and skill development. 
+      const enhancedPrompt = `You are Edubuddy chat assistant, an intelligent learning assistant focused on education and skill development. 
 
 User message: "${message}"
 
@@ -1007,7 +1007,8 @@ Response:`;
         return res.status(500).json({ error: "Failed to get AI response" });
       }
 
-      res.json({ response: aiResponse });
+      // Return the response in the format expected by the frontend
+      res.json({ reply: aiResponse });
     } catch (error) {
       console.error("Gemini chat error:", error);
       res.status(500).json({ error: "Failed to process chat message" });
@@ -1030,6 +1031,40 @@ Response:`;
     } catch (error) {
       console.error("Learn Anything search error:", error);
       res.status(500).json({ error: "Failed to search for learning resources" });
+    }
+  });
+
+  // Message management endpoints
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const messageData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(messageData);
+      res.json(message);
+    } catch (error) {
+      console.error("Insert message error:", error);
+      res.status(500).json({ error: "Failed to save message" });
+    }
+  });
+
+  app.get("/api/messages/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const messages = await storage.getMessagesBySession(sessionId);
+      res.json(messages);
+    } catch (error) {
+      console.error("Get messages error:", error);
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  app.delete("/api/messages/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      await storage.clearMessagesBySession(sessionId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Clear messages error:", error);
+      res.status(500).json({ error: "Failed to clear messages" });
     }
   });
 
