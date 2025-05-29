@@ -361,14 +361,14 @@ export function CrosswordGame() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-4 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 p-4 rounded-xl">
-        <h3 className="text-2xl font-bold text-purple-800 dark:text-purple-200 flex items-center gap-2">
-          <CheckCircle className="h-6 w-6" />
+      <div className="flex items-center justify-between bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 p-3 rounded-xl">
+        <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 flex items-center gap-2">
+          <CheckCircle className="h-5 w-5" />
           AI Crossword Puzzle
         </h3>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Badge
             variant="secondary"
             className="bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200"
@@ -385,12 +385,12 @@ export function CrosswordGame() {
       </div>
 
       {/* Main Game Area */}
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Crossword Grid */}
-        <div className="space-y-4 w-full lg:w-1/2">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border">
+        <div className="space-y-3 w-full lg:w-1/2">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg border">
             <div
-              className="grid gap-1 mx-auto w-fit"
+              className="grid gap-0.5 mx-auto w-fit"
               style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
             >
               {grid.map((row, rowIndex) =>
@@ -420,7 +420,7 @@ export function CrosswordGame() {
                               handleKeyDown(rowIndex, colIndex, e)
                             }
                             onFocus={() => setFocusedCell(cellKey)}
-                            className={`w-12 h-12 text-center p-0 font-bold text-lg border-2 transition-all ${
+                            className={`w-9 h-9 text-center p-0 font-bold text-base border-2 transition-all ${
                               showAnswers
                                 ? "bg-blue-50 dark:bg-blue-900/30 border-blue-300 text-blue-800 dark:text-blue-200"
                                 : focusedCell === cellKey
@@ -430,13 +430,13 @@ export function CrosswordGame() {
                             disabled={showAnswers}
                           />
                           {(cell.number || cell.conflictingNumbers) && (
-                            <span className="absolute -top-1 -left-1 text-xs font-bold text-purple-600 bg-white dark:bg-gray-800 px-1 rounded-full border min-w-[18px] text-center">
+                            <span className="absolute -top-1 -left-1 text-xs font-bold text-purple-600 bg-white dark:bg-gray-800 px-1 rounded-full border min-w-[16px] text-center">
                               {cell.conflictingNumbers || cell.number}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <div className="w-12 h-12 bg-gray-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600" />
+                        <div className="w-9 h-9 bg-gray-900 dark:bg-gray-700 border border-gray-300 dark:border-gray-600" />
                       )}
                     </div>
                   );
@@ -446,11 +446,11 @@ export function CrosswordGame() {
           </div>
 
           {/* Controls */}
-          <div className="flex justify-center gap-2 flex-wrap">
+          <div className="flex justify-center gap-2 flex-wrap mt-2">
             <select
               value={currentTheme}
               onChange={(e) => setCurrentTheme(e.target.value)}
-              className="px-3 py-2 text-sm border rounded-lg bg-background"
+              className="px-2 py-1 text-sm border rounded-lg bg-background"
               disabled={isGenerating}
             >
               {themes.map((theme) => (
@@ -507,14 +507,14 @@ export function CrosswordGame() {
         </div>
 
         {/* Clues */}
-        <div className="space-y-4 w-full lg:w-1/2 self-start">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border">
-            <h4 className="text-lg font-semibold mb-4 text-center">Clues</h4>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+        <div className="space-y-3 w-full lg:w-1/2 self-start">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg border">
+            <h4 className="text-base font-semibold mb-3 text-center">Clues</h4>
+            <div className="space-y-2 max-h-80 overflow-y-auto">
               {clues.map((clue) => (
                 <div
                   key={clue.number}
-                  className={`p-3 rounded-lg transition-all ${
+                  className={`p-2 rounded-lg transition-all ${
                     completedWords.has(clue.number)
                       ? "bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700"
                       : "bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600"
@@ -525,16 +525,16 @@ export function CrosswordGame() {
                       <span className="font-bold text-purple-600 dark:text-purple-400">
                         {clue.number} {clue.direction.toUpperCase()}:
                       </span>
-                      <p className="text-sm mt-1">{clue.clue}</p>
+                      <p className="text-xs mt-1">{clue.clue}</p>
                       {showHints && !completedWords.has(clue.number) && (
-                        <Badge variant="outline" className="mt-2 text-xs">
+                        <Badge variant="outline" className="mt-1 text-xs">
                           Starts with: {clue.answer[0]}
                         </Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-2 ml-2">
                       {completedWords.has(clue.number) && (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                       )}
                       <Badge variant="outline" className="text-xs">
                         {clue.answer.length} letters
@@ -550,15 +550,15 @@ export function CrosswordGame() {
 
       {/* Success Message */}
       {completedWords.size === clues.length && (
-        <div className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 p-6 rounded-xl border border-green-300 dark:border-green-700 text-center">
-          <h5 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">
+        <div className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/30 dark:to-blue-900/30 p-4 rounded-xl border border-green-300 dark:border-green-700 text-center">
+          <h5 className="text-xl font-bold text-green-800 dark:text-green-200 mb-2">
             🎉 Outstanding!
           </h5>
-          <p className="text-green-700 dark:text-green-300 text-lg">
+          <p className="text-green-700 dark:text-green-300 text-base">
             You completed the {currentTheme} crossword with a perfect score of{" "}
             {score}!
           </p>
-          <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+          <p className="text-xs text-green-600 dark:text-green-400 mt-2">
             Ready for a new challenge? Try a different theme!
           </p>
         </div>

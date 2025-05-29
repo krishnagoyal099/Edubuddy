@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Play, Pause, X, Info } from 'lucide-react';
 import { CrosswordGame } from './games/CrosswordGame';
-import { JigsawGame } from './games/JigsawGame';
+import { JigsawGame } from './games/HangmanGame';
 import { MemoryGame } from './games/MemoryGame';
 
 interface BreakModalProps {

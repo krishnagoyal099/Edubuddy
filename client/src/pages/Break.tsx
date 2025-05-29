@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Play, Pause, X, RotateCcw, Timer, Info } from 'lucide-react';
 import { CrosswordGame } from '@/components/games/CrosswordGame';
-import { JigsawGame } from '@/components/games/JigsawGame';
+import { JigsawGame } from '@/components/games/HangmanGame';
 import { MemoryGame } from '@/components/games/MemoryGame';
 import { useLocation } from 'wouter';
 
