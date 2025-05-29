@@ -13,6 +13,7 @@ interface Resource {
   url: string;
   description?: string;
   type: 'article' | 'video' | 'course' | 'documentation' | 'other';
+  isFree?: boolean;
 }
 
 async function searchLearnAnything(topic: string): Promise<Resource[]> {
@@ -26,7 +27,7 @@ async function searchLearnAnything(topic: string): Promise<Resource[]> {
 export default function FindResources() {
   const [searchTopic, setSearchTopic] = useState('');
   const [currentTopic, setCurrentTopic] = useState('');
-  const [showMoreResources, setShowMoreResources] = useState(false);
+  const [additionalResourcesCount, setAdditionalResourcesCount] = useState(0);
 
   const { data: resources, isLoading, error } = useQuery({
     queryKey: ['/api/learn-anything/search', currentTopic],
@@ -38,55 +39,176 @@ export default function FindResources() {
     e.preventDefault();
     if (searchTopic.trim()) {
       setCurrentTopic(searchTopic.trim());
-      setShowMoreResources(false);
+      setAdditionalResourcesCount(0);
     }
   };
 
-  const generateMoreResources = (topic: string) => {
-    return [
-      {
-        title: `${topic} - Reddit Community Discussions`,
-        url: `https://www.reddit.com/search/?q=${encodeURIComponent(topic)}`,
-        description: `Active community discussions and recommendations about ${topic}`,
-        type: 'other' as const
-      },
-      {
-        title: `${topic} - Quora Q&A`,
-        url: `https://www.quora.com/search?q=${encodeURIComponent(topic)}`,
-        description: `Expert answers and insights about ${topic}`,
-        type: 'other' as const
-      },
-      {
-        title: `${topic} - Academic Papers`,
-        url: `https://scholar.google.com/scholar?q=${encodeURIComponent(topic)}`,
-        description: `Research papers and academic resources on ${topic}`,
-        type: 'article' as const
-      },
-      {
-        title: `${topic} - Interactive Tutorials`,
-        url: `https://www.codecademy.com/search?query=${encodeURIComponent(topic)}`,
-        description: `Hands-on interactive learning for ${topic}`,
-        type: 'course' as const
-      },
-      {
-        title: `${topic} - Official Documentation Hub`,
-        url: `https://devdocs.io/${encodeURIComponent(topic.toLowerCase().split(' ')[0])}`,
-        description: `Comprehensive documentation and references for ${topic}`,
-        type: 'documentation' as const
-      },
-      {
-        title: `${topic} - Learning Roadmap`,
-        url: `https://roadmap.sh/search?q=${encodeURIComponent(topic)}`,
-        description: `Step-by-step learning path and roadmap for ${topic}`,
-        type: 'other' as const
-      }
+  const generateMoreResources = (topic: string, batch: number): Resource[] => {
+    const allResourceSets = [
+      // Batch 1 - Educational platforms
+      [
+        {
+          title: `${topic} - freeCodeCamp`,
+          url: `https://www.freecodecamp.org/news/search/?query=${encodeURIComponent(topic)}`,
+          description: `Interactive coding tutorials and articles about ${topic}`,
+          type: 'course' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Khan Academy`,
+          url: `https://www.khanacademy.org/search?page_search_query=${encodeURIComponent(topic)}`,
+          description: `Comprehensive courses and exercises on ${topic}`,
+          type: 'course' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - MIT OpenCourseWare`,
+          url: `https://ocw.mit.edu/search/?q=${encodeURIComponent(topic)}`,
+          description: `MIT university-level courses on ${topic}`,
+          type: 'course' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - YouTube Educational Channels`,
+          url: `https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' tutorial')}`,
+          description: `Video tutorials and lectures about ${topic}`,
+          type: 'video' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - MDN Web Docs`,
+          url: `https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(topic)}`,
+          description: `Comprehensive web development documentation for ${topic}`,
+          type: 'documentation' as const,
+          isFree: true
+        }
+      ],
+      // Batch 2 - Community and forums
+      [
+        {
+          title: `${topic} - Reddit Community Discussions`,
+          url: `https://www.reddit.com/search/?q=${encodeURIComponent(topic)}`,
+          description: `Active community discussions and recommendations about ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Stack Overflow`,
+          url: `https://stackoverflow.com/search?q=${encodeURIComponent(topic)}`,
+          description: `Programming questions and answers related to ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Dev.to Articles`,
+          url: `https://dev.to/search?q=${encodeURIComponent(topic)}`,
+          description: `Developer community articles and tutorials about ${topic}`,
+          type: 'article' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - GitHub Repositories`,
+          url: `https://github.com/search?q=${encodeURIComponent(topic)}`,
+          description: `Open source projects and code examples for ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - W3Schools`,
+          url: `https://www.w3schools.com/search/search_w3schools.asp?searchvalue=${encodeURIComponent(topic)}`,
+          description: `Web development tutorials and references for ${topic}`,
+          type: 'documentation' as const,
+          isFree: true
+        }
+      ],
+      // Batch 3 - Academic and research
+      [
+        {
+          title: `${topic} - Academic Papers`,
+          url: `https://scholar.google.com/scholar?q=${encodeURIComponent(topic)}`,
+          description: `Research papers and academic resources on ${topic}`,
+          type: 'article' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Learning Roadmap`,
+          url: `https://roadmap.sh/search?q=${encodeURIComponent(topic)}`,
+          description: `Step-by-step learning path and roadmap for ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Quora Q&A`,
+          url: `https://www.quora.com/search?q=${encodeURIComponent(topic)}`,
+          description: `Expert answers and insights about ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Wikipedia`,
+          url: `https://en.wikipedia.org/wiki/Special:Search/${encodeURIComponent(topic)}`,
+          description: `Comprehensive encyclopedia articles about ${topic}`,
+          type: 'article' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - TED Talks`,
+          url: `https://www.ted.com/search?q=${encodeURIComponent(topic)}`,
+          description: `Inspirational talks and presentations about ${topic}`,
+          type: 'video' as const,
+          isFree: true
+        }
+      ],
+      // Batch 4 - Additional resources
+      [
+        {
+          title: `${topic} - Crash Course Videos`,
+          url: `https://www.youtube.com/results?search_query=crash+course+${encodeURIComponent(topic)}`,
+          description: `Educational crash course videos about ${topic}`,
+          type: 'video' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Open Library`,
+          url: `https://openlibrary.org/search?q=${encodeURIComponent(topic)}`,
+          description: `Access to books and publications about ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Awesome Lists`,
+          url: `https://github.com/sindresorhus/awesome#${encodeURIComponent(topic.toLowerCase())}`,
+          description: `Curated list of awesome ${topic} resources`,
+          type: 'other' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - Mozilla Developer Network`,
+          url: `https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(topic)}`,
+          description: `Web development documentation and guides for ${topic}`,
+          type: 'documentation' as const,
+          isFree: true
+        },
+        {
+          title: `${topic} - CodePen Examples`,
+          url: `https://codepen.io/search/pens?q=${encodeURIComponent(topic)}`,
+          description: `Interactive code examples and demos for ${topic}`,
+          type: 'other' as const,
+          isFree: true
+        }
+      ]
     ];
+
+    const batchIndex = (batch - 1) % allResourceSets.length;
+    return allResourceSets[batchIndex];
   };
 
   const getResourceIcon = (type: string) => {
     switch (type) {
       case 'course':
         return <Book className="h-4 w-4" />;
+      case 'video':
+        return <Video className="h-4 w-4" />;
       case 'documentation':
         return <Book className="h-4 w-4" />;
       default:
@@ -98,12 +220,35 @@ export default function FindResources() {
     switch (type) {
       case 'course':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'video':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       case 'documentation':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
+
+  // Filter to show only free resources and remove duplicates
+  const freeResources = resources ? resources.filter(resource => resource.isFree !== false) : [];
+  
+  // Generate additional resources and remove duplicates
+  const allGeneratedResources = Array.from({ length: additionalResourcesCount }, (_, batchIndex) =>
+    generateMoreResources(currentTopic, batchIndex + 1)
+  ).flat();
+
+  // Create a set of existing URLs to avoid duplicates
+  const existingUrls = new Set(freeResources.map(resource => resource.url.toLowerCase()));
+  
+  // Filter out duplicates from generated resources
+  const uniqueGeneratedResources = allGeneratedResources.filter(resource => {
+    const normalizedUrl = resource.url.toLowerCase();
+    if (existingUrls.has(normalizedUrl)) {
+      return false;
+    }
+    existingUrls.add(normalizedUrl);
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
@@ -169,7 +314,7 @@ export default function FindResources() {
                 </div>
               )}
 
-              {resources && resources.length === 0 && (
+              {freeResources && freeResources.length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">No resources found for "{currentTopic}"</p>
                   <Button onClick={() => setCurrentTopic('')} variant="outline">
@@ -178,16 +323,16 @@ export default function FindResources() {
                 </div>
               )}
 
-              {resources && resources.length > 0 && (
+              {freeResources && freeResources.length > 0 && (
                 <div className="space-y-4">
                   <div className="mb-6">
                     <p className="text-sm text-muted-foreground">
-                      Found {resources.length} resources for "{currentTopic}"
+                      Found {freeResources.length + uniqueGeneratedResources.length} unique resources for "{currentTopic}"
                     </p>
                   </div>
                   
                   <div className="grid gap-4">
-                    {resources.map((resource, index) => (
+                    {freeResources.map((resource, index) => (
                       <div
                         key={index}
                         className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors"
@@ -225,7 +370,7 @@ export default function FindResources() {
                       </div>
                     ))}
                     
-                    {showMoreResources && (
+                    {uniqueGeneratedResources.length > 0 && (
                       <>
                         <div className="border-t border-border pt-4 mt-6">
                           <h4 className="font-medium text-foreground mb-4 flex items-center gap-2">
@@ -233,9 +378,9 @@ export default function FindResources() {
                             Additional Learning Resources
                           </h4>
                         </div>
-                        {generateMoreResources(currentTopic).map((resource, index) => (
+                        {uniqueGeneratedResources.map((resource, index) => (
                           <div
-                            key={`more-${index}`}
+                            key={`additional-${index}`}
                             className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors bg-muted/20"
                           >
                             <div className="flex items-start justify-between gap-4">
@@ -276,11 +421,11 @@ export default function FindResources() {
                   <div className="mt-6 text-center border-t border-border pt-6">
                     <Button
                       variant="outline"
-                      onClick={() => setShowMoreResources(!showMoreResources)}
+                      onClick={() => setAdditionalResourcesCount(prev => prev + 1)}
                       className="flex items-center gap-2 mx-auto"
                     >
                       <Search className="h-4 w-4" />
-                      {showMoreResources ? 'Hide More Resources' : 'More Resources'}
+                      More Resources
                     </Button>
                   </div>
                 </div>

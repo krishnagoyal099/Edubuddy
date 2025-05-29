@@ -41,8 +41,8 @@ export default function Home() {
     "Help me learn calculus step by step...",
     "Teach me about photosynthesis...",
     "What is machine learning?",
-    "What subject interests you?",
-    "Ask me about any subject you want to learn...",
+    "JavaScript Fundamentals",
+    "Human Anatomy",
   ];
 
   const placeholders = [
