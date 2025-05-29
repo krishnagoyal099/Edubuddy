@@ -19,19 +19,33 @@ export function VideoResources({ subject, timePreference }: VideoResourcesProps)
   const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState<YouTubeVideo | null>(null);
   const [showPlaylistVideos, setShowPlaylistVideos] = useState(false);
+  const [allVideos, setAllVideos] = useState<YouTubeVideo[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreVideos, setHasMoreVideos] = useState(true);
 
   // Reset selections when time preference changes
   useEffect(() => {
     setSelectedVideo(null);
     setSelectedPlaylist(null);
     setShowPlaylistVideos(false);
+    setAllVideos([]);
+    setCurrentPage(1);
+    setHasMoreVideos(true);
   }, [timePreference]);
 
   const { data: videos, isLoading, error } = useQuery({
-    queryKey: ['/api/youtube/search', subject, timePreference],
-    queryFn: () => getYouTubeVideos(subject, timePreference),
+    queryKey: ['/api/youtube/search', subject, timePreference, 1],
+    queryFn: () => getYouTubeVideos(subject, timePreference, 1),
     enabled: !!subject,
   });
+
+  // Update allVideos when new videos are loaded
+  useEffect(() => {
+    if (videos && videos.length > 0) {
+      setAllVideos(videos);
+    }
+  }, [videos]);
 
   const handleVideoSelect = (video: YouTubeVideo) => {
     if (video.isPlaylist) {
@@ -59,6 +73,68 @@ export function VideoResources({ subject, timePreference }: VideoResourcesProps)
     setSelectedVideo(null);
     setSelectedPlaylist(null);
     setShowPlaylistVideos(false);
+  };
+
+  const handleLoadMoreVideos = async () => {
+    if (isLoadingMore || !hasMoreVideos) return;
+    
+    setIsLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const newVideos = await getYouTubeVideos(subject, timePreference, nextPage);
+      
+      if (newVideos.length === 0) {
+        setHasMoreVideos(false);
+        toast({
+          title: "No more videos",
+          description: "You've reached the end of available videos for this topic.",
+        });
+        return;
+      }
+      
+      // Filter out duplicates and add new videos
+      const uniqueNewVideos = newVideos.filter(
+        newVideo => !allVideos.some(existingVideo => existingVideo.id === newVideo.id)
+      );
+      
+      if (uniqueNewVideos.length === 0) {
+        // If no unique videos, try one more page
+        const extraVideos = await getYouTubeVideos(subject, timePreference, nextPage + 1);
+        const extraUniqueVideos = extraVideos.filter(
+          newVideo => !allVideos.some(existingVideo => existingVideo.id === newVideo.id)
+        );
+        
+        if (extraUniqueVideos.length > 0) {
+          setAllVideos(prev => [...prev, ...extraUniqueVideos]);
+          setCurrentPage(nextPage + 1);
+          toast({
+            title: "More videos found!",
+            description: `Added ${extraUniqueVideos.length} new videos`,
+          });
+        } else {
+          setHasMoreVideos(false);
+          toast({
+            title: "No new videos",
+            description: "All available videos for this topic are already shown.",
+          });
+        }
+      } else {
+        setAllVideos(prev => [...prev, ...uniqueNewVideos]);
+        setCurrentPage(nextPage);
+        toast({
+          title: "More videos loaded!",
+          description: `Added ${uniqueNewVideos.length} new videos`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load more videos. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   const getVideoEmbedUrl = (videoId: string, isPlaylist: boolean = false, playlistId?: string) => {
@@ -157,13 +233,29 @@ export function VideoResources({ subject, timePreference }: VideoResourcesProps)
               >
                 Back to Video List
               </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleLoadMoreVideos}
+                className="flex-1"
+                disabled={isLoadingMore || !hasMoreVideos}
+              >
+                {isLoadingMore ? 'Loading...' : hasMoreVideos ? 'Find More Videos' : 'No More Videos'}
+              </Button>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 space-y-2">
               <Button 
                 onClick={handleCopyAndRevise}
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
               >
                 Create Quiz & Memory Cards
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleLoadMoreVideos}
+                className="w-full"
+                disabled={isLoadingMore || !hasMoreVideos}
+              >
+                {isLoadingMore ? 'Loading...' : hasMoreVideos ? 'Find More Videos' : 'No More Videos'}
               </Button>
             </div>
           </div>
@@ -221,6 +313,19 @@ export function VideoResources({ subject, timePreference }: VideoResourcesProps)
                 </div>
               ))}
             </div>
+            
+            {selectedPlaylist.playlistVideos && selectedPlaylist.playlistVideos.length > 0 && (
+              <div className="mt-4 text-center">
+                <Button 
+                  variant="outline"
+                  onClick={handleLoadMoreVideos}
+                  className="w-full max-w-md"
+                  disabled={isLoadingMore || !hasMoreVideos}
+                >
+                  {isLoadingMore ? 'Loading...' : hasMoreVideos ? 'Find More Videos' : 'No More Videos'}
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4 h-96 overflow-y-auto">
@@ -237,13 +342,13 @@ export function VideoResources({ subject, timePreference }: VideoResourcesProps)
               </div>
             )}
             
-            {videos && videos.length === 0 && (
+            {allVideos && allVideos.length === 0 && !isLoading && (
               <div className="text-center py-8">
                 <p className="text-muted-foreground">No videos found for "{subject}"</p>
               </div>
             )}
             
-            {videos?.map((video) => (
+            {allVideos?.map((video) => (
               <div
                 key={video.id}
                 className="bg-muted/50 rounded-lg p-4 hover:bg-muted/70 transition-colors cursor-pointer"
@@ -286,6 +391,19 @@ export function VideoResources({ subject, timePreference }: VideoResourcesProps)
                 </div>
               </div>
             ))}
+            
+            {allVideos && allVideos.length > 0 && (
+              <div className="mt-6 text-center">
+                <Button 
+                  variant="outline"
+                  onClick={handleLoadMoreVideos}
+                  className="w-full max-w-md"
+                  disabled={isLoadingMore || !hasMoreVideos}
+                >
+                  {isLoadingMore ? 'Loading More Videos...' : hasMoreVideos ? 'Find More Videos' : 'No More Videos'}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
