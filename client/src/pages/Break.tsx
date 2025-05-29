@@ -9,7 +9,7 @@ import { JigsawGame } from '@/components/games/JigsawGame';
 import { MemoryGame } from '@/components/games/MemoryGame';
 import { useLocation } from 'wouter';
 
-type GameType = 'crossword' | 'jigsaw' | 'memory' | null;
+type GameType = 'crossword' | 'hangman' | 'memory' | null;
 
 export default function Break() {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes default
@@ -19,7 +19,7 @@ export default function Break() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft(time => {
@@ -33,7 +33,7 @@ export default function Break() {
         });
       }, 1000);
     }
-    
+
     return () => clearInterval(interval);
   }, [isRunning, timeLeft, setLocation]);
 
@@ -65,7 +65,7 @@ export default function Break() {
     switch (selectedGame) {
       case 'crossword':
         return <CrosswordGame />;
-      case 'jigsaw':
+      case 'hangman':
         return <JigsawGame />;
       case 'memory':
         return <MemoryGame />;
@@ -80,19 +80,19 @@ export default function Break() {
     }
   };
 
-  const getGameIcon = (game: string) => {
+  const getGameIcon = (game: GameType) => {
     switch (game) {
-      case 'crossword': return '🎯';
-      case 'jigsaw': return '🧩';
+      case 'crossword': return '📝';
+      case 'hangman': return '🎪';
       case 'memory': return '🧠';
       default: return '🎮';
     }
   };
 
-  const getGameColors = (game: string) => {
+  const getGameColors = (game: GameType) => {
     switch (game) {
       case 'crossword': return 'bg-pink-100 dark:bg-pink-900/30 hover:bg-pink-200 dark:hover:bg-pink-800/50 border-pink-500';
-      case 'jigsaw': return 'bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 border-yellow-500';
+      case 'hangman': return 'bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 border-yellow-500';
       case 'memory': return 'bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-800/50 border-blue-500';
       default: return 'bg-gray-100 dark:bg-gray-700';
     }
@@ -101,7 +101,7 @@ export default function Break() {
   return (
     <div className="min-h-screen gradient-bg">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
@@ -130,7 +130,7 @@ export default function Break() {
                     {formatTime(timeLeft)}
                   </span>
                 </div>
-                
+
                 {/* Time Preset Buttons */}
                 <div className="flex justify-center space-x-3 mb-6">
                   {[
@@ -193,7 +193,7 @@ export default function Break() {
                   Choose Your Game:
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                  {(['crossword', 'jigsaw', 'memory'] as const).map((game) => (
+                  {(['crossword', 'hangman', 'memory'] as const).map((game) => (
                     <Button
                       key={game}
                       variant="outline"
@@ -208,7 +208,7 @@ export default function Break() {
                       <div className="text-lg font-medium capitalize">{game}</div>
                       <div className="text-sm text-muted-foreground">
                         {game === 'crossword' && 'Test your vocabulary'}
-                        {game === 'jigsaw' && 'Arrange the pieces'}
+                        {game === 'hangman' && 'Guess the word'}
                         {game === 'memory' && 'Match the cards'}
                       </div>
                     </Button>
