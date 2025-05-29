@@ -37,33 +37,12 @@ export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <a
-                href="/leaderboard"
-                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
-              >
-                Leaderboard
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
-              </a>
-              <a
-                href="/find-resources"
-                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
-              >
-                Find Resources
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
-              </a>
-              <a
                 href="/break"
                 className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
               >
                 Break
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
               </a>
-              <Link
-                href="/pricing"
-                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
-              >
-                Pricing
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
-              </Link>
               <Link
                 href="/revision"
                 className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
@@ -78,6 +57,13 @@ export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
                 Chat
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
               </Link>
+              <a
+                href="/find-resources"
+                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
+              >
+                Find Resources
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
+              </a>
             </nav>
           </div>
           <div className="flex items-center gap-4">
