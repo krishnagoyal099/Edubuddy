@@ -1,8 +1,7 @@
 # EduBuddy 📚
+<img src="/public/logo.png" alt="EduBuddy Logo" width="200"/>
 
 EduBuddy is an AI-powered learning companion that transforms your educational journey through interactive learning experiences and smart content generation.
-
-![EduBuddy Logo](client/public/logo.png) alt="EduBuddy Logo" width="200"/>
 
 ---
 
@@ -50,4 +49,5 @@ EduBuddy is an AI-powered learning companion that transforms your educational jo
 ```bash
 git clone https://github.com/yourusername/EduBuddy.git
 cd EduBuddy
+
 
