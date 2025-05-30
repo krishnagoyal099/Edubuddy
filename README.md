@@ -2,7 +2,7 @@
 
 EduBuddy is an AI-powered learning companion that transforms your educational journey through interactive learning experiences and smart content generation.
 
-![EduBuddy Logo](/public/logo.png)
+![EduBuddy Logo](client/public/logo.png)
 
 ---
 
