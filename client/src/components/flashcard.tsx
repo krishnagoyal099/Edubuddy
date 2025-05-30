@@ -10,10 +10,12 @@ function GlassButton({ children, ...props }: React.ComponentProps<"button">) {
   return (
     <button
       {...props}
-      className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg text-white font-medium transition hover:bg-white/20 active:scale-95 mx-1"
+      className="px-4 py-2 rounded-xl bg-white/90 backdrop-blur-md border border-gray-200 
+      text-gray-700 font-medium transition hover:bg-gray-50 active:scale-95 mx-1 
+      dark:bg-white/10 dark:border-white/20 dark:text-white dark:hover:bg-white/20"
       style={{
         boxShadow:
-          "0 4px 24px 0 rgba(255,255,255,0.08), 0 1.5px 6px 0 rgba(0,0,0,0.18)",
+          "0 4px 16px 0 rgba(0,0,0,0.08), 0 2px 4px 0 rgba(0,0,0,0.12)",
       }}
     >
       {children}

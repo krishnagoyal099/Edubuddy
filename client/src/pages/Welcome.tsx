@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { BookOpen, Users, Star, Zap, Brain, Target } from 'lucide-react';
-import { LoginModal } from '@/components/LoginModal';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { BookOpen, Users, Star, Zap, Brain, Target } from "lucide-react";
+import { LoginModal } from "@/components/LoginModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Welcome() {
   const [, setLocation] = useLocation();
@@ -15,13 +15,13 @@ export default function Welcome() {
   // Redirect to home if user is already signed in
   useEffect(() => {
     if (!isLoading && user) {
-      setLocation('/home');
+      setLocation("/home");
     }
   }, [user, isLoading, setLocation]);
 
   const handleGetStarted = () => {
     if (user) {
-      setLocation('/home');
+      setLocation("/home");
     } else {
       setShowLoginModal(true);
     }
@@ -29,12 +29,12 @@ export default function Welcome() {
 
   const handleSeeFeatures = () => {
     // Scroll to features section or navigate to features page
-    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById("features")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
-    setLocation('/home');
+    setLocation("/home");
   };
 
   return (
@@ -42,9 +42,11 @@ export default function Welcome() {
       {/* Header */}
       <header className="w-full py-4 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="EduBuddy Logo" className="h-8 w-8" />
-            <span className="text-xl font-bold text-foreground">EduBuddy</span>
+          <div className="cursor-pointer flex items-center space-x-3 hover:opacity-80 transition-all duration-300 py-4">
+            <img src="/logo.png" alt="EduBuddy Logo" className="h-32 w-26" />
+            <span className="text-2xl font-bold text-gray-900 tracking-tight">
+              EduBuddy
+            </span>
           </div>
           <Badge variant="secondary" className="bg-orange-100 text-orange-800">
             <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
@@ -56,14 +58,15 @@ export default function Welcome() {
       {/* Main Content */}
       <main className="flex flex-col items-center justify-center min-h-[calc(100vh-6rem)] px-4">
         <div className="text-center max-w-4xl mx-auto">
-          {/* Main Headline */}
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+          {/* Update Main Headline styling */}
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
             Your AI-Powered Learning Companion
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Transform videos and content into interactive quizzes, flashcards, and personalized study materials with AI
+          {/* Update Subtitle for better visibility */}
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Transform videos and content into interactive quizzes, flashcards,
+            and personalized study materials with AI
           </p>
 
           {/* Action Buttons */}
@@ -95,7 +98,9 @@ export default function Welcome() {
                 <div className="w-8 h-8 bg-orange-500 rounded-full border-2 border-white"></div>
               </div>
             </div>
-            <span className="text-sm">Trusted by thousands of students worldwide</span>
+            <span className="text-sm">
+              Trusted by thousands of students worldwide
+            </span>
           </div>
         </div>
       </main>
@@ -107,8 +112,9 @@ export default function Welcome() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Try Our Features Live
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience EduBuddy's powerful learning tools with interactive demos
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Experience EduBuddy's powerful learning tools with interactive
+              demos
             </p>
           </div>
 
@@ -121,21 +127,25 @@ export default function Welcome() {
                     <Target className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground">Focus Break</h3>
-                    <p className="text-muted-foreground">Productive breaks with games</p>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Focus Break
+                    </h3>
+                    <p className="text-gray-600">
+                      Productive breaks with games
+                    </p>
                   </div>
                 </div>
 
                 {/* Break Video Demo */}
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 mb-6">
                   <div className="aspect-video rounded-lg overflow-hidden bg-black/5">
-                    <video 
+                    <video
                       autoPlay
                       muted
                       loop
                       playsInline
                       className="w-full h-full rounded-lg object-cover"
-                      style={{ pointerEvents: 'none' }}
+                      style={{ pointerEvents: "none" }}
                     >
                       <source src="/break-demo.mp4" type="video/mp4" />
                       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
@@ -146,14 +156,14 @@ export default function Welcome() {
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => {
                     if (user) {
-                      setLocation('/break');
+                      setLocation("/break");
                     } else {
                       setShowLoginModal(true);
                     }
-                  }} 
+                  }}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3"
                 >
                   Try Break Mode →
@@ -169,19 +179,23 @@ export default function Welcome() {
                     <BookOpen className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground">Smart Revision</h3>
-                    <p className="text-muted-foreground">AI-generated study materials</p>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Smart Revision
+                    </h3>
+                    <p className="text-gray-600">
+                      AI-generated study materials
+                    </p>
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => {
                     if (user) {
-                      setLocation('/revision');
+                      setLocation("/revision");
                     } else {
                       setShowLoginModal(true);
                     }
-                  }} 
+                  }}
                   className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3"
                 >
                   Try Revision Hub →
@@ -197,19 +211,21 @@ export default function Welcome() {
                     <Zap className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground">AI Chat Assistant</h3>
-                    <p className="text-muted-foreground">Get instant learning help</p>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      AI Chat Assistant
+                    </h3>
+                    <p className="text-gray-600">Get instant learning help</p>
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => {
                     if (user) {
-                      setLocation('/chat');
+                      setLocation("/chat");
                     } else {
                       setShowLoginModal(true);
                     }
-                  }} 
+                  }}
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3"
                 >
                   Try AI Chat →
@@ -225,19 +241,23 @@ export default function Welcome() {
                     <Brain className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground">Find Resources</h3>
-                    <p className="text-muted-foreground">Discover curated learning materials</p>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Find Resources
+                    </h3>
+                    <p className="text-gray-600">
+                      Discover curated learning materials
+                    </p>
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => {
                     if (user) {
-                      setLocation('/find-resources');
+                      setLocation("/find-resources");
                     } else {
                       setShowLoginModal(true);
                     }
-                  }} 
+                  }}
                   className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-semibold py-3"
                 >
                   Find Resources →
@@ -254,8 +274,9 @@ export default function Welcome() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Ready to supercharge your studies?
           </h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Start transforming your learning materials into interactive study sessions today
+          <p className="text-xl text-gray-600 mb-8">
+            Start transforming your learning materials into interactive study
+            sessions today
           </p>
           <Button
             size="lg"
@@ -267,8 +288,8 @@ export default function Welcome() {
         </div>
       </section>
 
-      <LoginModal 
-        isOpen={showLoginModal} 
+      <LoginModal
+        isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
       />
     </div>
