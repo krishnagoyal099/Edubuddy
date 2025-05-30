@@ -38,7 +38,7 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       {/* Header */}
       <header className="w-full py-4 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -46,7 +46,7 @@ export default function Welcome() {
             <img src="/logo.png" alt="EduBuddy Logo" className="h-8 w-8" />
             <span className="text-xl font-bold text-foreground">EduBuddy</span>
           </div>
-          <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
             <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
             Powered by AI
           </Badge>
@@ -101,10 +101,10 @@ export default function Welcome() {
       </main>
 
       {/* Features Demo Section */}
-      <section id="features" className="py-20 px-4 bg-white/50 dark:bg-gray-800/50">
+      <section id="features" className="py-20 px-4 bg-white/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Try Our Features Live
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -114,7 +114,7 @@ export default function Welcome() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Break Feature Demo */}
-            <Card className="border-2 border-purple-200 dark:border-purple-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+            <Card className="border-2 border-purple-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -127,8 +127,8 @@ export default function Welcome() {
                 </div>
 
                 {/* Break Video Demo */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 mb-6">
-                  <div className="aspect-video rounded-lg overflow-hidden bg-black/5 dark:bg-white/5">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 mb-6">
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black/5">
                     <video 
                       autoPlay
                       muted
@@ -162,7 +162,7 @@ export default function Welcome() {
             </Card>
 
             {/* Revision Feature Demo */}
-            <Card className="border-2 border-blue-200 dark:border-blue-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+            <Card className="border-2 border-blue-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -190,7 +190,7 @@ export default function Welcome() {
             </Card>
 
             {/* Chat Feature Demo */}
-            <Card className="border-2 border-green-200 dark:border-green-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+            <Card className="border-2 border-green-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -218,7 +218,7 @@ export default function Welcome() {
             </Card>
 
             {/* Find Resources Feature Demo */}
-            <Card className="border-2 border-orange-200 dark:border-orange-800 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
+            <Card className="border-2 border-orange-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -251,7 +251,7 @@ export default function Welcome() {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Ready to supercharge your studies?
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
