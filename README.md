@@ -1,5 +1,5 @@
 # EduBuddy 📚
-<img src="/public/logo.png" alt="EduBuddy Logo" width="200"/>
+<img src="client/public/logo.png" alt="EduBuddy Logo" width="200"/>
 
 EduBuddy is an AI-powered learning companion that transforms your educational journey through interactive learning experiences and smart content generation.
 
