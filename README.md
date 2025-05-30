@@ -45,12 +45,13 @@ EduBuddy is an AI-powered learning companion that transforms your educational jo
 Configure environment
 Create a .env file inside /server:
 
-YOUTUBE_API_KEY
-GEMINI_API_KEY
-JWT_SECRET
-GOOGLE_SEARCH_API_KEY
-GOOGLE_SEARCH_ENGINE_ID
+-YOUTUBE_API_KEY
+-GEMINI_API_KEY
+-JWT_SECRET
+-GOOGLE_SEARCH_API_KEY
+-GOOGLE_SEARCH_ENGINE_ID
 
+#if running locally, change index.ts const host to "127.0.0.1"
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
