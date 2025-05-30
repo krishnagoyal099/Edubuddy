@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,12 +12,47 @@ export default function Welcome() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { user, isLoading } = useAuth();
 
+  // Refs for scroll animations
+  const featuresRef = useRef<HTMLElement>(null);
+  const heroVideoRef = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLElement>(null);
+  const [visibleElements, setVisibleElements] = useState<Set<string>>(
+    new Set()
+  );
+
   // Redirect to home if user is already signed in
   useEffect(() => {
     if (!isLoading && user) {
       setLocation("/home");
     }
   }, [user, isLoading, setLocation]);
+
+  // Scroll animation observer
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.2,
+      rootMargin: "0px 0px -100px 0px",
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setVisibleElements((prev) => new Set([...prev, entry.target.id]));
+        }
+      });
+    }, observerOptions);
+
+    const elements = [
+      featuresRef.current,
+      heroVideoRef.current,
+      ctaRef.current,
+    ];
+    elements.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleGetStarted = () => {
     if (user) {
@@ -105,52 +140,99 @@ export default function Welcome() {
         </div>
       </main>
 
+      {/* Hero Demo Video */}
+      <section
+        ref={heroVideoRef}
+        id="hero-video"
+        className={`py-12 px-4 transition-all duration-1200 ease-out transform ${
+          visibleElements.has("hero-video") ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div
+          className={`max-w-6xl mx-auto transition-all duration-1500 ease-out delay-200 transform ${
+            visibleElements.has("hero-video")
+              ? "translate-y-0 scale-100"
+              : "translate-y-32 scale-75"
+          }`}
+        >
+          <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 shadow-xl transform transition-all duration-700">
+            <div className="aspect-video rounded-xl overflow-hidden bg-black/5 shadow-lg relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
+              <div className="absolute inset-0 ring-2 ring-blue-200/50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full rounded-xl object-cover transition-all duration-700 group-hover:scale-[1.01] group-hover:brightness-105"
+                style={{ pointerEvents: "none", minHeight: "600px" }}
+              >
+                <source src="/front.mp4" type="video/mp4" />
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <div className="text-4xl mb-4 animate-bounce">🎬</div>
+                  <p className="animate-pulse">EduBuddy overview demo</p>
+                </div>
+              </video>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Demo Section */}
-      <section id="features" className="py-20 px-4 bg-white/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+      <section
+        ref={featuresRef}
+        id="features"
+        className={`py-12 px-4 bg-white/50 transition-all duration-1000 transform ${
+          visibleElements.has("features")
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-8"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
               Try Our Features Live
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-xl mx-auto">
               Experience EduBuddy's powerful learning tools with interactive
               demos
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             {/* Break Feature Demo */}
-            <Card className="border-2 border-purple-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Target className="h-8 w-8 text-white" />
+            <Card className="border-2 border-purple-200 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-500 hover:scale-105">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Target className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">
+                    <h3 className="text-xl font-bold text-gray-900">
                       Focus Break
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-sm text-gray-600">
                       Productive breaks with games
                     </p>
                   </div>
                 </div>
 
                 {/* Break Video Demo */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 mb-6">
-                  <div className="aspect-video rounded-lg overflow-hidden bg-black/5">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4 mb-4 transition-all duration-300 hover:shadow-lg group">
+                  <div className="aspect-video rounded-md overflow-hidden bg-black/5 shadow-inner relative transform transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none"></div>
                     <video
                       autoPlay
                       muted
                       loop
                       playsInline
-                      className="w-full h-full rounded-lg object-cover"
+                      className="w-full h-full rounded-md object-cover transition-all duration-500 group-hover:brightness-110"
                       style={{ pointerEvents: "none" }}
                     >
                       <source src="/break-demo.mp4" type="video/mp4" />
                       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                        <div className="text-4xl mb-4">🎥</div>
-                        <p>Break mode demo</p>
+                        <div className="text-3xl mb-2 animate-pulse">🎥</div>
+                        <p className="text-sm">Break mode demo</p>
                       </div>
                     </video>
                   </div>
@@ -164,7 +246,7 @@ export default function Welcome() {
                       setShowLoginModal(true);
                     }
                   }}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium py-2"
                 >
                   Try Break Mode →
                 </Button>
@@ -172,19 +254,40 @@ export default function Welcome() {
             </Card>
 
             {/* Revision Feature Demo */}
-            <Card className="border-2 border-blue-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <BookOpen className="h-8 w-8 text-white" />
+            <Card className="border-2 border-blue-200 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-500 hover:scale-105">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <BookOpen className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">
+                    <h3 className="text-xl font-bold text-gray-900">
                       Smart Revision
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-sm text-gray-600">
                       AI-generated study materials
                     </p>
+                  </div>
+                </div>
+
+                {/* Revision Video Demo */}
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 mb-4 transition-all duration-300 hover:shadow-lg group">
+                  <div className="aspect-video rounded-md overflow-hidden bg-black/5 shadow-inner relative transform transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none"></div>
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full rounded-md object-cover transition-all duration-500 group-hover:brightness-110"
+                      style={{ pointerEvents: "none" }}
+                    >
+                      <source src="/revision.mp4" type="video/mp4" />
+                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <div className="text-3xl mb-2 animate-pulse">📚</div>
+                        <p className="text-sm">Revision mode demo</p>
+                      </div>
+                    </video>
                   </div>
                 </div>
 
@@ -196,7 +299,7 @@ export default function Welcome() {
                       setShowLoginModal(true);
                     }
                   }}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3"
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium py-2"
                 >
                   Try Revision Hub →
                 </Button>
@@ -204,17 +307,40 @@ export default function Welcome() {
             </Card>
 
             {/* Chat Feature Demo */}
-            <Card className="border-2 border-green-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Zap className="h-8 w-8 text-white" />
+            <Card className="border-2 border-green-200 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-500 hover:scale-105">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Zap className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">
+                    <h3 className="text-xl font-bold text-gray-900">
                       AI Chat Assistant
                     </h3>
-                    <p className="text-gray-600">Get instant learning help</p>
+                    <p className="text-sm text-gray-600">
+                      Get instant learning help
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chat Video Demo */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 mb-4 transition-all duration-300 hover:shadow-lg group">
+                  <div className="aspect-video rounded-md overflow-hidden bg-black/5 shadow-inner relative transform transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-t from-green-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none"></div>
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full rounded-md object-cover transition-all duration-500 group-hover:brightness-110"
+                      style={{ pointerEvents: "none" }}
+                    >
+                      <source src="/chat.mp4" type="video/mp4" />
+                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <div className="text-3xl mb-2 animate-pulse">💬</div>
+                        <p className="text-sm">Chat assistant demo</p>
+                      </div>
+                    </video>
                   </div>
                 </div>
 
@@ -226,7 +352,7 @@ export default function Welcome() {
                       setShowLoginModal(true);
                     }
                   }}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3"
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium py-2"
                 >
                   Try AI Chat →
                 </Button>
@@ -234,19 +360,40 @@ export default function Welcome() {
             </Card>
 
             {/* Find Resources Feature Demo */}
-            <Card className="border-2 border-orange-200 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-300">
-              <CardContent className="p-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Brain className="h-8 w-8 text-white" />
+            <Card className="border-2 border-orange-200 shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-500 hover:scale-105">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <Brain className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">
+                    <h3 className="text-xl font-bold text-gray-900">
                       Find Resources
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-sm text-gray-600">
                       Discover curated learning materials
                     </p>
+                  </div>
+                </div>
+
+                {/* Find Resources Video Demo */}
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-4 mb-4 transition-all duration-300 hover:shadow-lg group">
+                  <div className="aspect-video rounded-md overflow-hidden bg-black/5 shadow-inner relative transform transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-t from-orange-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none"></div>
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full rounded-md object-cover transition-all duration-500 group-hover:brightness-110"
+                      style={{ pointerEvents: "none" }}
+                    >
+                      <source src="/findresources.mp4" type="video/mp4" />
+                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <div className="text-3xl mb-2 animate-pulse">🔍</div>
+                        <p className="text-sm">Find Resources demo</p>
+                      </div>
+                    </video>
                   </div>
                 </div>
 
@@ -258,7 +405,7 @@ export default function Welcome() {
                       setShowLoginModal(true);
                     }
                   }}
-                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-semibold py-3"
+                  className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-medium py-2"
                 >
                   Find Resources →
                 </Button>
@@ -269,19 +416,27 @@ export default function Welcome() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section
+        ref={ctaRef}
+        id="cta"
+        className={`py-16 px-4 transition-all duration-1000 transform ${
+          visibleElements.has("cta")
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-8"
+        }`}
+      >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
             Ready to supercharge your studies?
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-lg text-gray-600 mb-6">
             Start transforming your learning materials into interactive study
             sessions today
           </p>
           <Button
             size="lg"
             onClick={handleGetStarted}
-            className="px-8 py-4 text-lg bg-black hover:bg-gray-800 text-white"
+            className="px-8 py-3 text-lg bg-black hover:bg-gray-800 text-white transform hover:scale-105 transition-all duration-300"
           >
             Start Learning Today
           </Button>
