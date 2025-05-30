@@ -12,35 +12,33 @@ import Revision from "./pages/Revision";
 import Chat from "@/pages/Chat";
 import FindResources from "@/pages/FindResources";
 import { AuthProvider } from "@/contexts/AuthContext";
-
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Welcome} />
-      <Route path="/home" component={Home} />
-      <Route path="/break" component={Break} />
-      <Route path="/revision" component={Revision} />
-      <Route path="/chat" component={Chat} />
-      <Route path="/find-resources" component={FindResources} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
           <AuthProvider>
-            <Toaster />
-            <Router />
+            <TooltipProvider>
+              <div className="min-h-screen">
+                <Toaster />
+                <Switch>
+                  <Route path="/" component={Welcome} />
+                  <Route path="/home" component={Home} />
+                  <Route path="/break" component={Break} />
+                  <Route path="/revision" component={Revision} />
+                  <Route path="/chat" component={Chat} />
+                  <Route path="/find-resources" component={FindResources} />
+                  <Route component={NotFound} />
+                </Switch>
+              </div>
+            </TooltipProvider>
           </AuthProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 }
 
 export default App;
-// This is the main entry point of the application.

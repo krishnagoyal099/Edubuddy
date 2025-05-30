@@ -1,22 +1,22 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LoginModal } from "./LoginModal";
 import { useTheme } from "./ThemeProvider";
 import { Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
 
   const handleLogoClick = () => {
-    if (location === "/home") {
-      window.location.reload();
+    // Always navigate to home page when clicking logo
+    // Force a complete navigation by going to root first, then home
+    if (location.includes("/find-resources") || location === "/home") {
+      // If we're on find-resources or already on home, force a refresh
+      setLocation("/");
+      setTimeout(() => setLocation("/home"), 50);
     } else {
-      // Always redirect to home page when clicking logo from other pages
       setLocation("/home");
     }
     if (onLogoClick) onLogoClick();
@@ -37,13 +37,13 @@ export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
               </span>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
-              <a
+              <Link
                 href="/break"
                 className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
               >
                 Break
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
-              </a>
+              </Link>
               <Link
                 href="/revision"
                 className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
@@ -58,13 +58,13 @@ export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
                 Chat
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
               </Link>
-              <a
+              <Link
                 href="/find-resources"
                 className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
               >
                 Find Resources
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
-              </a>
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -81,34 +81,28 @@ export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
               )}
             </Button>
 
-            {user ? (
+            {isLoading ? (
+              <div className="w-20 h-10 bg-muted animate-pulse rounded-md"></div>
+            ) : user ? (
               <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium text-muted-foreground">
                   Welcome, {user.name || user.email}
                 </span>
                 <Button
                   variant="outline"
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    setLocation("/");
+                  }}
                   className="font-medium hover:bg-accent/80 transition-all duration-300"
                 >
                   Logout
                 </Button>
               </div>
-            ) : (
-              <Button
-                onClick={() => setShowLoginModal(true)}
-                className="bg-gradient-to-r from-purple-900 via-purple-700 to-fuchsia-600 hover:from-purple-800 hover:via-purple-600 hover:to-fuchsia-500 text-white border-none shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                Login
-              </Button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
     </header>
   );
 }

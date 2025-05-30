@@ -32,6 +32,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Listen for storage changes to sync auth state across tabs/windows
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "token") {
+        if (e.newValue) {
+          validateToken(e.newValue);
+        } else {
+          setUser(null);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const validateToken = async (token: string) => {
     try {
       const response = await fetch("/auth/validate-token", {
@@ -44,15 +61,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
+        console.log("Token validated successfully:", userData);
       } else {
         console.log("Token validation failed, removing token");
         localStorage.removeItem("token");
+        setUser(null);
       }
     } catch (error) {
       console.error("Token validation error:", error);
-      localStorage.removeItem("token");
+      // Don't remove token immediately on network errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.log("Network error during validation, keeping token");
+      } else {
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const login = async (email: string, password: string) => {
@@ -89,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { user, token } = await response.json();
       localStorage.setItem("token", token);
       setUser(user);
-      console.log("Login successful");
+      console.log("Login successful for user:", user);
     } catch (error) {
       console.error("Login error:", error);
       if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -133,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { user, token } = await response.json();
       localStorage.setItem("token", token);
       setUser(user);
-      console.log("Signup successful");
+      console.log("Signup successful for user:", user);
     } catch (error) {
       console.error("Signup error:", error);
       if (error instanceof TypeError && error.message.includes('fetch')) {

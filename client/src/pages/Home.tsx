@@ -31,9 +31,8 @@ export default function Home() {
   };
 
   const handleLogoClick = () => {
-    if (location.pathname === "/") {
-      window.location.reload();
-    }
+    // Just scroll to top, don't reload to preserve auth state
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const prompts = [
