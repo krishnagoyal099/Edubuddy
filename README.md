@@ -42,6 +42,14 @@ EduBuddy is an AI-powered learning companion that transforms your educational jo
 - **Database**: SQLite (via Prisma ORM)
 
 ---
+Configure environment
+Create a .env file inside /server:
+
+YOUTUBE_API_KEY
+GEMINI_API_KEY
+JWT_SECRET
+GOOGLE_SEARCH_API_KEY
+GOOGLE_SEARCH_ENGINE_ID
 
 ## 🚀 Getting Started
 
