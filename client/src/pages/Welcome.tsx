@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Users, Star, Zap, Brain, Target } from "lucide-react";
 import { LoginModal } from "@/components/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 export default function Welcome() {
   const [, setLocation] = useLocation();
@@ -141,42 +142,33 @@ export default function Welcome() {
       </main>
 
       {/* Hero Demo Video */}
-      <section
-        ref={heroVideoRef}
-        id="hero-video"
-        className={`py-12 px-4 transition-all duration-1200 ease-out transform ${
-          visibleElements.has("hero-video") ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <div
-          className={`max-w-6xl mx-auto transition-all duration-1500 ease-out delay-200 transform ${
-            visibleElements.has("hero-video")
-              ? "translate-y-0 scale-100"
-              : "translate-y-32 scale-75"
-          }`}
-        >
-          <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 shadow-xl transform transition-all duration-700">
-            <div className="aspect-video rounded-xl overflow-hidden bg-black/5 shadow-lg relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
-              <div className="absolute inset-0 ring-2 ring-blue-200/50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full rounded-xl object-cover transition-all duration-700 group-hover:scale-[1.01] group-hover:brightness-105"
-                style={{ pointerEvents: "none", minHeight: "600px" }}
-              >
-                <source src="/front.mp4" type="video/mp4" />
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <div className="text-4xl mb-4 animate-bounce">🎬</div>
-                  <p className="animate-pulse">EduBuddy overview demo</p>
-                </div>
-              </video>
-            </div>
+      <ContainerScroll
+        titleComponent={
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Experience Smart Learning
+            </h2>
+            <p className="text-lg text-gray-600">
+              Watch how EduBuddy transforms your learning experience though dual desk learning
+            </p>
           </div>
+        }
+      >
+        <div className="aspect-video rounded-xl overflow-hidden bg-black/5 shadow-lg relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
+          <div className="absolute inset-0 ring-2 ring-blue-200/50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full rounded-xl object-cover transition-all duration-700 group-hover:scale-[1.01] group-hover:brightness-105"
+            style={{ pointerEvents: "none" }}
+          >
+            <source src="/front.mp4" type="video/mp4" />
+          </video>
         </div>
-      </section>
+      </ContainerScroll>
 
       {/* Features Demo Section */}
       <section
