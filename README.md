@@ -50,3 +50,10 @@ EduBuddy is an AI-powered learning companion that transforms your educational jo
 ```bash
 git clone https://github.com/yourusername/EduBuddy.git
 cd EduBuddy
+2. Install Dependencies
+Backend
+bash
+Copy
+Edit
+cd server
+npm install
