@@ -28,13 +28,89 @@ export function ChatMessage({ message }: ChatMessageProps) {
     }
   };
 
+  // Clean asterisks and markdown formatting while preserving tables
+  const cleanMarkdownFormatting = (content: string) => {
+    // Check if content contains table formatting (lines with |)
+    const hasTable = content.includes('|') && content.split('\n').some(line => 
+      line.trim().includes('|') && line.split('|').length > 2
+    );
+    
+    if (hasTable) {
+      // For table content, only remove asterisks from within cells, preserve table structure
+      return content
+        // Remove bold/italic asterisks but preserve table pipes
+        .replace(/\*{1,3}([^*|]+)\*{1,3}/g, '$1')
+        // Remove bold/italic underscores but preserve table structure
+        .replace(/_{1,3}([^_|]+)_{1,3}/g, '$1')
+        // Remove strikethrough tildes
+        .replace(/~{1,2}([^~|]+)~{1,2}/g, '$1');
+    } else {
+      // For non-table content, clean normally
+      return content
+        // Remove bold/italic asterisks
+        .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')
+        // Remove bold/italic underscores
+        .replace(/_{1,3}([^_]+)_{1,3}/g, '$1')
+        // Remove strikethrough tildes
+        .replace(/~{1,2}([^~]+)~{1,2}/g, '$1')
+        // Clean up any remaining isolated asterisks
+        .replace(/\*/g, '');
+    }
+  };
+
   // Format message content with better rendering
   const formatContent = (content: string) => {
+    // Clean markdown formatting first
+    let formattedContent = cleanMarkdownFormatting(content);
+    
     // Handle code blocks
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
     const inlineCodeRegex = /`([^`]+)`/g;
 
-    let formattedContent = content;
+    // Handle markdown tables
+    const tableRegex = /(\|.*\|[\r\n]+\|[-\s|:]+\|[\r\n]+((\|.*\|[\r\n]*)+))/g;
+    formattedContent = formattedContent.replace(tableRegex, (match) => {
+      const lines = match.trim().split('\n');
+      if (lines.length < 2) return match;
+      
+      const headerRow = lines[0];
+      const separatorRow = lines[1];
+      const dataRows = lines.slice(2);
+      
+      // Parse header
+      const headers = headerRow.split('|').map(h => h.trim()).filter(h => h);
+      
+      // Parse data rows
+      const rows = dataRows.map(row => 
+        row.split('|').map(cell => cell.trim()).filter(cell => cell)
+      ).filter(row => row.length > 0);
+      
+      // Generate HTML table
+      let tableHtml = '<table class="min-w-full border-collapse border border-gray-300 dark:border-gray-600 my-4">';
+      
+      // Header
+      tableHtml += '<thead class="bg-gray-50 dark:bg-gray-700">';
+      tableHtml += '<tr>';
+      headers.forEach(header => {
+        tableHtml += `<th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-medium">${header}</th>`;
+      });
+      tableHtml += '</tr>';
+      tableHtml += '</thead>';
+      
+      // Body
+      tableHtml += '<tbody>';
+      rows.forEach(row => {
+        tableHtml += '<tr>';
+        row.forEach(cell => {
+          tableHtml += `<td class="border border-gray-300 dark:border-gray-600 px-4 py-2">${cell}</td>`;
+        });
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody>';
+      tableHtml += '</table>';
+      
+      return tableHtml;
+    });
 
     // Replace code blocks
     formattedContent = formattedContent.replace(codeBlockRegex, (match, lang, code) => {
