@@ -74,7 +74,7 @@ app.use((req, res, next) => {
   }
 
   // Serve the app on 0.0.0.0:5000
-  const port = 5000;
+  const port = 10000;
   const host = "0.0.0.0";
 
   server.listen(port, host, () => {
