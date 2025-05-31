@@ -14,7 +14,7 @@ app.use(
     origin:
       process.env.NODE_ENV === "development"
         ? true
-        : ["https://your-production-domain.replit.app"],
+        : process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:3000"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
@@ -74,8 +74,8 @@ app.use((req, res, next) => {
   }
 
   // Serve the app on 0.0.0.0:5000
-  const port = 5000;
-  const host = "0.0.0.0";
+  const port = 10000;
+  const host = "127.0.0.1";
 
   server.listen(port, host, () => {
     log(`serving on http://${host}:${port}`);
