@@ -1,0 +1,85 @@
+import { NextRequest, NextResponse } from "next/server";
+
+// In-memory messages storage
+const messages: Map<string, any[]> = new Map();
+let messageIdCounter = 1;
+
+export async function GET(request: NextRequest) {
+  try {
+    const url = new URL(request.url);
+    const sessionId = url.pathname.split("/").pop();
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: "Session ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const sessionMessages = messages.get(sessionId) || [];
+    return NextResponse.json(sessionMessages);
+  } catch (error) {
+    console.error("Get messages error:", error);
+    return NextResponse.json(
+      { error: "Failed to get messages" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { content, role, sessionId } = await request.json();
+
+    if (!content || !role || !sessionId) {
+      return NextResponse.json(
+        { error: "Content, role, and sessionId are required" },
+        { status: 400 }
+      );
+    }
+
+    const message = {
+      id: messageIdCounter++,
+      content,
+      role,
+      sessionId,
+      createdAt: new Date(),
+    };
+
+    if (!messages.has(sessionId)) {
+      messages.set(sessionId, []);
+    }
+    messages.get(sessionId)!.push(message);
+
+    return NextResponse.json(message);
+  } catch (error) {
+    console.error("Create message error:", error);
+    return NextResponse.json(
+      { error: "Failed to create message" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const url = new URL(request.url);
+    const sessionId = url.pathname.split("/").pop();
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: "Session ID is required" },
+        { status: 400 }
+      );
+    }
+
+    messages.delete(sessionId);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete messages error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete messages" },
+      { status: 500 }
+    );
+  }
+}

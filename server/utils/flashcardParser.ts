@@ -52,8 +52,8 @@ function parseFlashcard(section: string): Flashcard | null {
     const content = section.replace(/^Flashcard:\s*/, '').trim();
     
     // Split by Q: and A:
-    const qMatch = content.match(/Q:\s*(.+?)(?=\s*A:)/s);
-    const aMatch = content.match(/A:\s*(.+?)$/s);
+    const qMatch = content.match(/Q:\s*([\s\S]+?)(?=\s*A:)/);
+    const aMatch = content.match(/A:\s*([\s\S]+?)$/);
 
     if (!qMatch || !aMatch) {
       console.warn("Failed to parse flashcard:", section);
@@ -85,7 +85,7 @@ function parseQuizQuestion(section: string): QuizQuestion | null {
     const content = section.replace(/^Quiz:\s*/, '').trim();
     
     // Extract question (everything before "Options:")
-    const questionMatch = content.match(/^(.+?)(?=\s*Options:)/s);
+    const questionMatch = content.match(/^([\s\S]+?)(?=\s*Options:)/);
     if (!questionMatch) {
       console.warn("No question found in quiz section:", section);
       return null;
@@ -94,7 +94,7 @@ function parseQuizQuestion(section: string): QuizQuestion | null {
     const question = questionMatch[1].trim();
 
     // Extract options
-    const optionsMatch = content.match(/Options:\s*(.+?)(?=\s*Correct:)/s);
+    const optionsMatch = content.match(/Options:\s*([\s\S]+?)(?=\s*Correct:)/);
     if (!optionsMatch) {
       console.warn("No options found in quiz section:", section);
       return null;

@@ -225,12 +225,89 @@
       "role": "assistant",
       "sessionId": "llMuDRhI-s7lxdfwjB4b9",
       "createdAt": "2025-05-30T13:18:11.241Z"
+    },
+    {
+      "id": 31,
+      "content": "hello",
+      "role": "user",
+      "sessionId": "P5F1t6Y4Gu08hhpeKInIz",
+      "createdAt": "2025-11-11T09:21:03.321Z"
+    },
+    {
+      "id": 32,
+      "content": "fvgjgfedw",
+      "role": "user",
+      "sessionId": "P5F1t6Y4Gu08hhpeKInIz",
+      "createdAt": "2025-11-11T09:21:59.268Z"
+    },
+    {
+      "id": 33,
+      "content": "hello",
+      "role": "user",
+      "sessionId": "P5F1t6Y4Gu08hhpeKInIz",
+      "createdAt": "2025-11-11T09:22:03.559Z"
+    },
+    {
+      "id": 34,
+      "content": "hello how are you",
+      "role": "user",
+      "sessionId": "SS-9va18v9LZItQaw4dvX",
+      "createdAt": "2025-11-11T09:23:06.716Z"
+    },
+    {
+      "id": 35,
+      "content": "teach me python",
+      "role": "user",
+      "sessionId": "gDUuHGBP2pTETaKXYhR_T",
+      "createdAt": "2025-11-11T09:25:49.270Z"
+    },
+    {
+      "id": 36,
+      "content": "teach me python",
+      "role": "user",
+      "sessionId": "F9YJwpQZp2X_H2ihTVsL6",
+      "createdAt": "2025-11-11T09:28:26.514Z"
+    },
+    {
+      "id": 37,
+      "content": "teach me python",
+      "role": "user",
+      "sessionId": "cFsxAyh2ttFPXdKNxswJH",
+      "createdAt": "2025-11-11T09:29:13.729Z"
+    },
+    {
+      "id": 38,
+      "content": "teach me python",
+      "role": "user",
+      "sessionId": "OwYC2uHvCZY-RzzH7x77p",
+      "createdAt": "2025-11-11T09:29:35.617Z"
+    },
+    {
+      "id": 39,
+      "content": "teach me python",
+      "role": "user",
+      "sessionId": "rxGtPJ5i34fDW_E87aI7l",
+      "createdAt": "2025-11-11T09:30:17.342Z"
+    },
+    {
+      "id": 40,
+      "content": "teach me python",
+      "role": "user",
+      "sessionId": "ajwehIseNn2rMgY8FgIqF",
+      "createdAt": "2025-11-11T09:31:16.222Z"
+    },
+    {
+      "id": 41,
+      "content": "teach me java",
+      "role": "user",
+      "sessionId": "ajwehIseNn2rMgY8FgIqF",
+      "createdAt": "2025-11-11T09:31:29.092Z"
     }
   ],
   "currentUserId": 3,
   "currentHistoryId": 1,
   "currentSessionId": 1,
-  "currentMessageId": 31,
+  "currentMessageId": 42,
   "videos": [
     {
       "id": 1,

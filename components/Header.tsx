@@ -1,0 +1,110 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useTheme } from "./ThemeProvider";
+import { Sun, Moon } from "lucide-react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+
+export function Header({ onLogoClick }: { onLogoClick?: () => void }) {
+  const { theme, toggleTheme } = useTheme();
+  const { user, logout, isLoading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleLogoClick = () => {
+    // Always navigate to home page when clicking logo
+    if (pathname.includes("/find-resources") || pathname === "/home") {
+      router.push("/");
+      setTimeout(() => router.push("/home"), 50);
+    } else {
+      router.push("/home");
+    }
+    if (onLogoClick) onLogoClick();
+  };
+
+  return (
+    <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-24">
+          <div className="flex items-center space-x-8">
+            <div
+              className="cursor-pointer flex items-center space-x-3 hover:opacity-80 transition-all duration-300 py-4"
+              onClick={handleLogoClick}
+            >
+              <img src="/logo.png" alt="EduBuddy Logo" className="h-32 w-26" />
+              <span className="text-2xl font-bold text-foreground tracking-tight">
+                EduBuddy
+              </span>
+            </div>
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link
+                href="/break"
+                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
+              >
+                Break
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
+              </Link>
+              <Link
+                href="/revision"
+                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
+              >
+                Revision
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
+              </Link>
+              <Link
+                href="/chat"
+                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
+              >
+                Chat
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
+              </Link>
+              <Link
+                href="/find-resources"
+                className="text-base font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
+              >
+                Find Resources
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-full transition-all duration-300 ease-out"></span>
+              </Link>
+            </nav>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleTheme}
+              className="bg-muted hover:bg-accent"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+
+            {isLoading ? (
+              <div className="w-20 h-10 bg-muted animate-pulse rounded-md"></div>
+            ) : user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Welcome, {user.name || user.email}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    logout();
+                    router.push("/");
+                  }}
+                  className="font-medium hover:bg-accent/80 transition-all duration-300"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

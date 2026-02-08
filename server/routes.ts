@@ -6,7 +6,7 @@ import {
   generateContentRequestSchema,
   insertMessageSchema,
 } from "@shared/schema";
-import { GoogleGenerativeAI } from "@google_generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { YoutubeTranscript } from "youtube-transcript";
 import * as z from "zod";
 import { extractYouTubeTranscript } from "./utils/youtubeTranscript";
@@ -14,16 +14,6 @@ import { generateContentWithGemini } from "./utils/geminiClient";
 import { parseFlashcardsAndQuiz } from "./utils/flashcardParser";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import {
-  insertUser,
-  getUser,
-  updateUser,
-  insertMessage,
-  getMessages,
-} from "./storage";
-import { generateWithGemini } from "./utils/geminiClient";
-import { getYouTubeTranscript } from "./utils/youtubeTranscript";
-import { parseFlashcardsAndQuiz } from "./utils/flashcardParser";
 import { searchLearnAnything } from "./utils/learnAnythingScraper";
 
 interface Video {
@@ -76,6 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create user
       const user = await storage.createUser({
+        username: email.split('@')[0], // Use email prefix as username
         email,
         name,
         password: hashedPassword,
@@ -132,8 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = jwt.sign(
         { userId: user.id, email: user.email },
         JWT_SECRET,
-        { expiresIn: "7d" },
-        { header: { alg: 'HS256' } }
+        { expiresIn: "7d" }
       );
 
       res.json({
@@ -548,7 +538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               views: parseInt(views).toLocaleString() + " views",
             };
           })
-          .filter((video) => video !== null); // Remove filtered out videos
+          .filter((video: any) => video !== null); // Remove filtered out videos
       }
 
       res.json(videos);

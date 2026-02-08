@@ -38,7 +38,11 @@ export default function Welcome() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          setVisibleElements((prev) => new Set([...prev, entry.target.id]));
+          setVisibleElements((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(entry.target.id);
+            return newSet;
+          });
         }
       });
     }, observerOptions);

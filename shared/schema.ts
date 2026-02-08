@@ -128,6 +128,7 @@ export const videoSearchSchema = z.object({
 
 
 export type Flashcard = {
+  id: string;
   question: string;
   answer: string;
 };
@@ -144,7 +145,8 @@ export type GenerateContentResponse = {
 };
 
 export type QuizQuestion = {
+  id: string;
   question: string;
   options: string[];
-  answer: number; // index of the correct option
+  correctAnswer: number; // index of the correct option
 };
