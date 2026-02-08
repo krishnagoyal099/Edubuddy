@@ -131,6 +131,195 @@ export function JigsawGame() {
         category: "History",
       },
     ],
+    Geography: [
+      {
+        word: "CONTINENT",
+        hint: "Large landmass on Earth",
+        category: "Geography",
+      },
+      {
+        word: "MOUNTAIN",
+        hint: "Natural elevation of Earth's surface",
+        category: "Geography",
+      },
+      {
+        word: "EQUATOR",
+        hint: "Imaginary line around Earth's middle",
+        category: "Geography",
+      },
+      {
+        word: "PENINSULA",
+        hint: "Land surrounded by water on three sides",
+        category: "Geography",
+      },
+      {
+        word: "VOLCANO",
+        hint: "Mountain that can erupt",
+        category: "Geography",
+      },
+    ],
+    Sports: [
+      {
+        word: "BASKETBALL",
+        hint: "Game played with hoops and a ball",
+        category: "Sports",
+      },
+      {
+        word: "TENNIS",
+        hint: "Racket sport played on a court",
+        category: "Sports",
+      },
+      {
+        word: "OLYMPICS",
+        hint: "International sporting event",
+        category: "Sports",
+      },
+      {
+        word: "CHAMPION",
+        hint: "Winner of a competition",
+        category: "Sports",
+      },
+      {
+        word: "SOCCER",
+        hint: "Most popular sport globally",
+        category: "Sports",
+      },
+    ],
+    Movies: [
+      {
+        word: "DIRECTOR",
+        hint: "Person who guides film making",
+        category: "Movies",
+      },
+      {
+        word: "SCREENPLAY",
+        hint: "Written version of a film",
+        category: "Movies",
+      },
+      {
+        word: "ACTOR",
+        hint: "Person who performs in films",
+        category: "Movies",
+      },
+      {
+        word: "CINEMA",
+        hint: "Place to watch films",
+        category: "Movies",
+      },
+      {
+        word: "ANIMATION",
+        hint: "Moving drawings or computer graphics",
+        category: "Movies",
+      },
+    ],
+    Music: [
+      {
+        word: "MELODY",
+        hint: "Sequence of musical notes",
+        category: "Music",
+      },
+      {
+        word: "RHYTHM",
+        hint: "Pattern of musical beats",
+        category: "Music",
+      },
+      {
+        word: "GUITAR",
+        hint: "Stringed musical instrument",
+        category: "Music",
+      },
+      {
+        word: "CONCERT",
+        hint: "Live musical performance",
+        category: "Music",
+      },
+      {
+        word: "ORCHESTRA",
+        hint: "Large group of musicians",
+        category: "Music",
+      },
+    ],
+    Literature: [
+      {
+        word: "NOVEL",
+        hint: "Long fictional story in prose",
+        category: "Literature",
+      },
+      {
+        word: "POETRY",
+        hint: "Written art form with rhythm",
+        category: "Literature",
+      },
+      {
+        word: "AUTHOR",
+        hint: "Writer of books or stories",
+        category: "Literature",
+      },
+      {
+        word: "CHAPTER",
+        hint: "Main division of a book",
+        category: "Literature",
+      },
+      {
+        word: "NARRATIVE",
+        hint: "Spoken or written account of events",
+        category: "Literature",
+      },
+    ],
+    Food: [
+      {
+        word: "CUISINE",
+        hint: "Style of cooking",
+        category: "Food",
+      },
+      {
+        word: "RECIPE",
+        hint: "Instructions for preparing food",
+        category: "Food",
+      },
+      {
+        word: "DESSERT",
+        hint: "Sweet course after main meal",
+        category: "Food",
+      },
+      {
+        word: "INGREDIENT",
+        hint: "Component used in cooking",
+        category: "Food",
+      },
+      {
+        word: "SPICES",
+        hint: "Flavoring for food",
+        category: "Food",
+      },
+    ],
+    Animals: [
+      {
+        word: "ELEPHANT",
+        hint: "Largest land mammal",
+        category: "Animals",
+      },
+      {
+        word: "PENGUIN",
+        hint: "Flightless bird from Antarctica",
+        category: "Animals",
+      },
+      {
+        word: "DOLPHIN",
+        hint: "Intelligent marine mammal",
+        category: "Animals",
+      },
+      {
+        word: "GIRAFFE",
+        hint: "Tallest land animal",
+        category: "Animals",
+      },
+      {
+        word: "CHEETAH",
+        hint: "Fastest land animal",
+        category: "Animals",
+      },
+    ],
   };
 
   const generateNewWord = async () => {
