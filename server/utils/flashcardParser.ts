@@ -1,4 +1,4 @@
-import { Flashcard, QuizQuestion } from "@shared/schema";
+import { Flashcard, QuizQuestion } from "../../shared/schema";
 import { nanoid } from "nanoid";
 
 export function parseFlashcards(content: string): Flashcard[] {

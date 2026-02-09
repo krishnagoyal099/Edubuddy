@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+import { sendChatMessage } from "@/lib/services/chat.service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,23 +12,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    const prompt = `You are a helpful AI study assistant called EduBuddy. 
-    Help students with their learning and studying needs. 
-    Be encouraging, clear, and educational in your responses.
-    
-    Student's question: ${message}`;
-
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const reply = response.text();
-
-    return NextResponse.json({ reply });
+    const response = await sendChatMessage(message);
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Gemini chat error:", error);
     return NextResponse.json(
-      { error: "Failed to generate response" },
+      { error: error instanceof Error ? error.message : "Failed to generate response" },
       { status: 500 }
     );
   }

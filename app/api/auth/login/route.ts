@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-
-// Reference to users storage (shared with signup route in production, use a database)
-const users: Map<string, { id: number; email: string; name: string; password: string }> = new Map();
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+import {
+  verifyPassword,
+  generateToken,
+} from "@/lib/services/auth.service";
+import { storage } from "@/lib/services/storage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
-    const user = users.get(email);
+    const user = await storage.getUserByEmail(email);
     if (!user) {
       return NextResponse.json(
         { error: "Invalid credentials" },
@@ -28,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await verifyPassword(password, user.password);
     if (!isValidPassword) {
       return NextResponse.json(
         { error: "Invalid credentials" },
@@ -37,11 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = generateToken(user);
 
     return NextResponse.json({
       user: { id: user.id, email: user.email, name: user.name },

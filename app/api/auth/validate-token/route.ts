@@ -1,26 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-
-// In-memory users storage (shared with other auth routes in production)
-const users: Map<string, { id: number; email: string; name: string; password: string }> = new Map();
+import {
+  extractBearerToken,
+  verifyToken,
+} from "@/lib/services/auth.service";
+import { storage } from "@/lib/services/storage";
 
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = extractBearerToken(authHeader);
+    
+    if (!token) {
       return NextResponse.json(
         { error: "No token provided" },
         { status: 401 }
       );
     }
 
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string };
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json(
+        { error: "Invalid token" },
+        { status: 401 }
+      );
+    }
 
-    // Find user by email
-    const user = users.get(decoded.email);
+    // Find user
+    const user = await storage.getUserById(decoded.userId.toString());
     if (!user) {
       return NextResponse.json(
         { error: "User not found" },

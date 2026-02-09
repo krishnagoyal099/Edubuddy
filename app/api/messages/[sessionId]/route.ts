@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { storage } from "@/lib/services/storage";
 
-// In-memory messages storage
-const messages: Map<string, any[]> = new Map();
-let messageIdCounter = 1;
-
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { sessionId: string } }
+) {
   try {
-    const url = new URL(request.url);
-    const sessionId = url.pathname.split("/").pop();
+    const sessionId = params.sessionId;
 
     if (!sessionId) {
       return NextResponse.json(
@@ -16,7 +15,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const sessionMessages = messages.get(sessionId) || [];
+    const sessionMessages = await storage.getMessagesBySession(sessionId);
     return NextResponse.json(sessionMessages);
   } catch (error) {
     console.error("Get messages error:", error);
@@ -27,9 +26,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { sessionId: string } }
+) {
   try {
-    const { content, role, sessionId } = await request.json();
+    const sessionId = params.sessionId;
+    const { content, role } = await request.json();
 
     if (!content || !role || !sessionId) {
       return NextResponse.json(
@@ -38,18 +41,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const message = {
-      id: messageIdCounter++,
+    const message = await storage.createMessage({
       content,
       role,
       sessionId,
-      createdAt: new Date(),
-    };
-
-    if (!messages.has(sessionId)) {
-      messages.set(sessionId, []);
-    }
-    messages.get(sessionId)!.push(message);
+    });
 
     return NextResponse.json(message);
   } catch (error) {
@@ -61,10 +57,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { sessionId: string } }
+) {
   try {
-    const url = new URL(request.url);
-    const sessionId = url.pathname.split("/").pop();
+    const sessionId = params.sessionId;
 
     if (!sessionId) {
       return NextResponse.json(
@@ -73,7 +71,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    messages.delete(sessionId);
+    await storage.clearMessagesBySession(sessionId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Delete messages error:", error);
